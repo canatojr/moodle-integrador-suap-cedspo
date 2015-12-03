@@ -2,7 +2,7 @@
 
 $capabilities = array(
 
-    'blocks/suap:viewpage' => array(
+    'suap:viewpage' => array(
 
         'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
@@ -13,7 +13,7 @@ $capabilities = array(
         )
     ),
 
-    'block/suap:addinstance' => array(
+    'suap:addinstance' => array(
         'riskbitmask' => RISK_SPAM | RISK_XSS,
 
         'captype' => 'write',

@@ -3,17 +3,21 @@
 require_once(dirname(__FILE__) . '/../../config.php');
 require_once($CFG->dirroot . '/blocks/suap/lib.php');
 
-class block_suap extends block_base {
+class block_suap extends block_base
+{
 
-    function init() {
+    function init()
+    {
         $this->title = get_string('pluginname', 'block_suap');
     }
 
-    public function applicable_formats() {
+    public function applicable_formats()
+    {
         return array('all' => true);
     }
 
-    function get_content() {
+    function get_content()
+    {
         global $CFG;
 
         if ($this->content !== null) {

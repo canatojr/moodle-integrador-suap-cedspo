@@ -30,10 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     echo $codigo ? "<dt>Código da turma: </dt><dd>$codigo</dd>" : "";
     echo $id_diario ? "<dt>Diário: </dt><dd>$id_diario</dd>" : "";
     echo "</dl>";
-?>
+    ?>
     <form method='POST'>
         <input type='submit' value='Importar'/>
     </form>
-<?php
+    <?php
 }
 echo $OUTPUT->footer();
