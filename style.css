@@ -1,0 +1,12 @@
+.nav.tab > li {
+  display: inline-block;
+  margin-right: 10px;
+}
+dl.oneline {
+  border: 1px solid #e3e3e3;
+  border-radius: 5px;
+  padding: 10px;
+}
+dl.oneline > dt, dl.oneline > dd {
+  display: inline-block;
+}
