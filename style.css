@@ -13,6 +13,8 @@ dl.oneline > dt, dl.oneline > dd {
     display: inline-block;
 }
 
-.log OL { counter-reset: item }
-.log LI { display: block }
-.log LI:before { content: counters(item, ".") " "; counter-increment: item }
+/*.log OL { counter-reset: item }*/
+/*.log LI { display: block }*/
+/*.log LI:before { content: counters(item, ".") " "; counter-increment: item }*/
+
+.log OL { list-style: none }
