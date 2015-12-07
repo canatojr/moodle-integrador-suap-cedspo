@@ -2,6 +2,7 @@
 require_once('lib.php');
 include('../lib/coursecatlib.php');
 include('../course/lib.php');
+include('../user/lib.php');
 
 
 class Category {
@@ -224,10 +225,13 @@ class Curso
     public static function importar($id_curso, $ano, $periodo)
     {
         $curso = Curso::ler_moodle($id_curso);
-        echo "<p>Importando curso <b>{$curso->name} ($ano.$periodo)</b> ...</p>";
+        echo "<li>Importando curso <b>{$curso->name} ($ano.$periodo)</b>...</li><ol>";
         foreach (Turma::ler_rest($id_curso, $ano, $periodo) as $turma) {
+            echo "<li>";
             Turma::importar($id_curso, $turma->id, $turma->codigo);
+            echo "</li>";
         };
+        echo "</ol>";
     }
 }
 
@@ -294,7 +298,7 @@ class Turma extends AbstractEntity
     public static function importar($id_curso, $id_turma, $codigo)
     {
         $curso = Curso::ler_moodle($id_curso);
-        echo "<p>&nbsp;&nbsp;&nbsp;&nbsp;Importando a turma (<b>$id_turma</b>) <b>$codigo</b> ...";
+        echo "Importando a turma (<b>$id_turma</b>) <b>$codigo</b> ...";
 
         // Se não existe uma category para esta turma criá-la como filha do curso
         $turma_moodle = Turma::ler_moodle($id_turma);
@@ -306,11 +310,11 @@ class Turma extends AbstractEntity
         } else {
             echo " A turma já existe. <a href='../course/management.php?categoryid={$turma_moodle->id}' class='btn btn-small'>Acessar</a>";
         }
-        echo "</p>";
-
+        echo "<ol>";
         foreach (Diario::ler_rest($id_turma) as $diario) {
             Diario::importar($id_turma, $diario->id, $diario);
         };
+        echo "</ol>";
     }
 
     public function criar()
@@ -409,7 +413,7 @@ class Diario extends AbstractEntity
     public static function importar($id_turma, $id_diario, $diario = null)
     {
         $turma = Turma::ler_moodle($id_turma);
-        echo "<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Importando o diário (<b>$id_diario</b>)";
+        echo "<li>Importando o diário (<b>$id_diario</b>)";
 
         // Se não existe uma category para esta turma criá-la como filha do curso
         $diario_moodle = Diario::ler_moodle($id_diario);
@@ -421,10 +425,10 @@ class Diario extends AbstractEntity
         } else {
             echo " <b>{$diario_moodle->fullname}</b> ... já existia. <a class='btn btn-small' href='../course/management.php?categoryid={$diario_moodle->category}&courseid={$diario_moodle->id}'>Acessar</a></p>";
         }
-        echo "</p>";
-
+        echo "</li><ol>";
         Professor::importar($id_diario);
         Aluno::importar($id_diario);
+        echo "</ol>";
     }
 
     public function criar($diario = null)
@@ -547,6 +551,7 @@ class Usuario extends AbstractEntity
         global $DB, $default_user_preferences;
         $usuario = $DB->get_record("user", array("username" => $this->getUsername()));
         if (!$usuario) {
+//            dumpd($usuario);
             $nome_parts = explode(' ', $this->nome);
             $lastname = array_pop($nome_parts);
             $firstname = implode(' ', $nome_parts);
@@ -570,11 +575,14 @@ class Usuario extends AbstractEntity
             foreach ($default_user_preferences as $key=>$value) {
                 $this->criar_user_preferences($key, $value);
             }
+            // Trigger event If required.
+//            \core\event\user_created::create_from_userid($usuario->id)->trigger();
         } else {
             $usuario->suspended = $this->getSuspended();
             $DB->update_record('user', $usuario);
+//            \core\event\user_updated::create_from_userid($usuario->id)->trigger();
         }
-        echo "<p>Sincronizado {$this->getTipo()} <b>{$this->getUsername()} - {$this->nome}</b> <a href='../user/profile.php?id={$usuario->id}' class='btn btn-small'>Acessar</a></p>";
+        echo "<li>Sincronizado <b>{$this->getUsername()} - {$this->nome} ({$this->getTipo()})</b> <a href='../user/profile.php?id={$usuario->id}' class='btn btn-small'>Acessar</a></li>";
         $this->id_moodle = $usuario->id;
         return $usuario;
     }
@@ -620,17 +628,19 @@ class Usuario extends AbstractEntity
             $role_assigments->modifierid = time();
             $role_assigments->id = $DB->insert_record('role_assignments', $role_assigments);
         }
+        echo "<li>Arrolado <b>{$instance->getUsername()} - {$instance->nome} ({$instance->getTipo()} )</b></li>";
     }
 
     protected static function sincronizar_usuarios($id_diario, $oque, $list)
     {
         try {
             $diario = Diario::ler_moodle($id_diario);
-            echo "<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sincronizando <b>" . count($list) .  " $oque</b> do diário <b>{$diario->fullname}</b> ...</p>";
+            echo "<li>Sincronizando <b>" . count($list) .  " $oque</b> do diário <b>{$diario->fullname}</b> ...<ol>";
 
             foreach ($list as $instance) {
                 $instance->sincronizar();
             }
+            echo "</ol></li>";
         } catch (Exception $e) {
             raise_error($e);
         }
@@ -640,12 +650,12 @@ class Usuario extends AbstractEntity
     {
         try {
             $diario = Diario::ler_moodle($id_diario);
-            echo "<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Arrolando <b>" . count($list) .  " $oque</b> do diário <b>{$diario->fullname}</b> ...</p>";
+            echo "<li>Arrolando <b>" . count($list) .  " $oque</b> do diário <b>{$diario->fullname}</b> ...</li><ol>";
 
             foreach ($list as $instance) {
-                echo "<p>Arrolando {$instance->getTipo()} <b>{$instance->getUsername()} - {$instance->nome}</b></p>";
-                $instance->arrolar($diario);
+//                $instance->arrolar($diario);
             }
+            echo "</ol>";
         } catch (Exception $e) {
             raise_error($e);
         }

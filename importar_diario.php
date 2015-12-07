@@ -8,7 +8,9 @@ $id_diario = isset($_GET['id_diario']) ? $_GET['id_diario'] : null;
 $ano = isset($_GET['ano']) ? $_GET['ano'] : null;
 $periodo = isset($_GET['periodo']) ? $_GET['periodo'] : null;
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    echo "<p>Inicio.</p>";
+    echo "<div class='log'>";
+    echo "<ol>";
+    echo "<li>Inicio.</li>";
     if ($id_turma && $id_diario) {
         Diario::importar($id_turma, $id_diario);
     } else if ($id_curso && $id_turma && $codigo) {
@@ -18,8 +20,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         die('Informe um curso (+ ano e periodo), turma (+ curso e codigo) ou diário (+ turma).');
     }
-    echo "<p>Fim.</p>";
-    echo "<p class='btn'><a href='../admin/purgecaches.php' target='_blank'>Deseja limpar o cache agora?</a></p>";
+    echo "<li>Fim.</li>";
+    echo "<li class='btn'><a href='../admin/purgecaches.php' target='_blank'>Deseja limpar o cache agora?</a></li>";
+    echo "</ol>";
+    echo "</div>";
 } else {
     if (!$id_curso && !$id_turma && !$id_diario) {
         die('Informe um curso (+ ano e periodo), turma (+ curso e codigo) ou diário (+ turma).');
