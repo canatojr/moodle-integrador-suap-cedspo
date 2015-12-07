@@ -1,8 +1,10 @@
 <?php
 require_once('lib.php');
-include('../lib/coursecatlib.php');
-include('../course/lib.php');
-include('../user/lib.php');
+require_once('../lib/coursecatlib.php');
+require_once('../course/lib.php');
+require_once('../user/lib.php');
+require_once("../enrol/locallib.php");
+require_once("../enrol/externallib.php");
 
 
 class Category {
@@ -421,10 +423,13 @@ class Diario extends AbstractEntity
             $diario_moodle = new Diario();
             $diario_moodle->id_turma = $id_turma;
             $diario_moodle->criar($diario);
-            echo " <b>{$diario_moodle->fullname}</b> ... foi criado com sucesso. <a class='btn btn-small' href='../course/management.php?categoryid={$diario_moodle->category}&courseid={$diario_moodle->id}'>Acessar</a></p>";
+            echo " <b>{$diario_moodle->fullname}</b> ... foi criado com sucesso. ";
         } else {
-            echo " <b>{$diario_moodle->fullname}</b> ... já existia. <a class='btn btn-small' href='../course/management.php?categoryid={$diario_moodle->category}&courseid={$diario_moodle->id}'>Acessar</a></p>";
+            echo " <b>{$diario_moodle->fullname}</b> ... já existia. ";
         }
+        echo "<a class='btn btn-small' href='../course/management.php?categoryid={$diario_moodle->category}&courseid={$diario_moodle->id}'>Configuração</a>";
+        echo "<a class='btn btn-small' href='../course/view.php?id={$diario_moodle->id}'>Acessar</a>";
+
         echo "</li><ol>";
         Professor::importar($id_diario);
         Aluno::importar($id_diario);
@@ -546,92 +551,7 @@ class Usuario extends AbstractEntity
         return $enrol_type[$this->getTipo()];
     }
 
-    function sincronizar()
-    {
-        global $DB, $default_user_preferences;
-        $usuario = $DB->get_record("user", array("username" => $this->getUsername()));
-        if (!$usuario) {
-//            dumpd($usuario);
-            $nome_parts = explode(' ', $this->nome);
-            $lastname = array_pop($nome_parts);
-            $firstname = implode(' ', $nome_parts);
-            $usuario = new stdClass();
-            $usuario->username = $this->getUsername();
-            $usuario->auth = 'ldap';
-            $usuario->firstname = $firstname;
-            $usuario->lastname = $lastname;
-            $usuario->email = $this->getEmail();
-            $usuario->timecreated = time();
-            $usuario->timemodified = time();
-            $usuario->timezone = '99';
-            $usuario->lang = 'pt_br';
-            $usuario->password = 'not cached';
-            $usuario->suspended = $this->getSuspended();
-            $usuario->confirmed = 1;
-            $usuario->id = $DB->insert_record('user', $usuario);
-
-            AbstractEntity::criar_contexto('30', $usuario->id, '/1');
-
-            foreach ($default_user_preferences as $key=>$value) {
-                $this->criar_user_preferences($key, $value);
-            }
-            // Trigger event If required.
-//            \core\event\user_created::create_from_userid($usuario->id)->trigger();
-        } else {
-            $usuario->suspended = $this->getSuspended();
-            $DB->update_record('user', $usuario);
-//            \core\event\user_updated::create_from_userid($usuario->id)->trigger();
-        }
-        echo "<li>Sincronizado <b>{$this->getUsername()} - {$this->nome} ({$this->getTipo()})</b> <a href='../user/profile.php?id={$usuario->id}' class='btn btn-small'>Acessar</a></li>";
-        $this->id_moodle = $usuario->id;
-        return $usuario;
-    }
-
-    function criar_user_preferences($name, $value)
-    {
-        global $DB;
-        $user_preferences = new stdClass();
-        $user_preferences->userid = $this->id_moodle;
-        $user_preferences->name = $name;
-        $user_preferences->value = $value;
-        $DB->insert_record('user_preferences', $user_preferences);
-    }
-
-    function arrolar($diario_moodle) {
-        global $DB, $contexto_diario_moodle;
-        $enrol = Enrol::ler_ou_criar($this->getEnrolType(), $diario_moodle->id, $this->getRoleId());
-
-        if (!$DB->get_record('user_enrolments', array('enrolid'=>$enrol->id,'userid'=>$diario_moodle->id))) {
-            $user_enrolments = new stdClass();
-            $user_enrolments->enrolid = $enrol->id;
-            $user_enrolments->userid = $diario_moodle->id;
-
-            $user_enrolments->status = 0;
-            $user_enrolments->timeend = 0;
-            $user_enrolments->modifierid = 4;
-            $user_enrolments->timestart = time();
-            $user_enrolments->timecreated = time();
-            $user_enrolments->timemodified = time();
-            $user_enrolments->id = $DB->insert_record('user_enrolments', $user_enrolments);
-        }
-
-        if (!$DB->get_record('role_assignments', array('roleid'=>$this->getRoleId(), 'contextid'=>$diario_moodle->context->id, 'userid'=>$this->id_moodle, 'itemid'=>0))) {
-            $role_assigments = new stdClass();
-            $role_assigments->roleid = $this->getRoleId();
-            $role_assigments->contextid = $diario_moodle->context->id;
-            $role_assigments->userid = $this->id_moodle;
-
-            $role_assigments->itemid = 0;
-            $role_assigments->component = '';
-            $role_assigments->sortorder = 0;
-            $role_assigments->timemodified = time();
-            $role_assigments->modifierid = time();
-            $role_assigments->id = $DB->insert_record('role_assignments', $role_assigments);
-        }
-        echo "<li>Arrolado <b>{$instance->getUsername()} - {$instance->nome} ({$instance->getTipo()} )</b></li>";
-    }
-
-    protected static function sincronizar_usuarios($id_diario, $oque, $list)
+    protected static function importar($id_diario, $oque, $list)
     {
         try {
             $diario = Diario::ler_moodle($id_diario);
@@ -639,6 +559,7 @@ class Usuario extends AbstractEntity
 
             foreach ($list as $instance) {
                 $instance->sincronizar();
+                $instance->arrolar($diario);
             }
             echo "</ol></li>";
         } catch (Exception $e) {
@@ -646,19 +567,81 @@ class Usuario extends AbstractEntity
         }
     }
 
-    protected static function arrolar_usuarios($id_diario, $oque, $list)
+    function sincronizar()
     {
-        try {
-            $diario = Diario::ler_moodle($id_diario);
-            echo "<li>Arrolando <b>" . count($list) .  " $oque</b> do diário <b>{$diario->fullname}</b> ...</li><ol>";
+        global $DB, $default_user_preferences;
+        $usuario = $DB->get_record("user", array("username" => $this->getUsername()));
+        if (!$usuario) {
+            $nome_parts = explode(' ', $this->nome);
+            $this->id_moodle = user_create_user(array(
+                'firstname'=>array_pop($nome_parts),
+                'lastname'=>implode(' ', $nome_parts),
+                'username'=>$this->getUsername(),
+                'auth'=>'ldap',
+                'password'=>'not cached',
+                'email'=>$this->getEmail(),
+                'suspended'=>$this->getSuspended(),
+                'timezone'=>'99',
+                'lang'=>'pt_br',
+                'confirmed'=>1,
+            ), false);
 
-            foreach ($list as $instance) {
-//                $instance->arrolar($diario);
+            foreach ($default_user_preferences as $key=>$value) {
+                $this->criar_user_preferences($key, $value);
             }
-            echo "</ol>";
-        } catch (Exception $e) {
-            raise_error($e);
+            $usuario->id = $this->id_moodle;
+            $oper = 'Criado';
+        } else {
+            user_update_user(array('id'=>$usuario->id, 'suspended'=>$this->getSuspended()), false);
+            $oper = 'Atualizado';
         }
+
+        echo "<li>$oper <b>{$this->getUsername()} - {$this->nome} ({$this->getTipo()})</b> <a href='../user/profile.php?id={$usuario->id}' class='btn btn-small'>Acessar</a></li>";
+        $this->id_moodle = $usuario->id;
+    }
+
+    function criar_user_preferences($name, $value)
+    {
+        global $DB;
+        $DB->insert_record('user_preferences',
+                           (object)array( 'userid'=>$this->id_moodle, 'name'=>$name, 'value'=>$value, ));
+    }
+
+    function arrolar($diario_moodle) {
+        global $DB, $USER;
+        $enrol = Enrol::ler_ou_criar($this->getEnrolType(), $diario_moodle->id, $this->getRoleId());
+
+        echo "<li>";
+        $enrolment = $DB->get_record('user_enrolments', array('enrolid'=>$enrol->id,'userid'=>$this->id_moodle));
+        if (!$enrolment) {
+            $id = $DB->insert_record('user_enrolments', (object)array(
+                'enrolid'=>$enrol->id,
+                'userid'=>$this->id_moodle,
+                'status'=>0,
+                'timecreated'=>time(),
+                'timemodified'=>time(),
+                'timestart'=>time(),
+                'modifierid'=>$USER->id,
+                'timeend'=>0,
+            ));
+            echo " Arrolado, ";
+        } else {
+            echo " Já arrolado. ";
+        }
+
+        $assignment = $DB->get_record('role_assignments', array('roleid'=>$this->getRoleId(), 'contextid'=>$diario_moodle->context->id, 'userid'=>$this->id_moodle, 'itemid'=>0));
+        if (!$assignment) {
+            $id2 = $DB->insert_record('role_assignments', (object)array(
+                'roleid'=>$this->getRoleId(),
+                'contextid'=>$diario_moodle->context->id,
+                'userid'=>$this->id_moodle,
+                'itemid'=>0,
+            ));
+            echo " atribuído ";
+        } else {
+            echo " já atribuído ";
+        }
+        echo " <b>{$this->getUsername()} - {$this->nome} ({$this->getTipo()} )</b></li>";
     }
 }
 
@@ -670,12 +653,10 @@ class Professor extends Usuario
         return AbstractEntity::ler_rest_generico("listar_professores_ead", $id_diario, 'Professor', ['nome', 'login', 'tipo', 'email', 'email_secundario', 'status']);
     }
 
-    public static function importar($id_diario)
+    public static function importar($id_diario, $oque=null, $list=null)
     {
         try {
-            $list = Professor::ler_rest($id_diario);
-            Usuario::sincronizar_usuarios($id_diario, 'docentes', $list);
-            Usuario::arrolar_usuarios($id_diario, 'docentes', $list);
+            Usuario::importar($id_diario, 'docentes', Professor::ler_rest($id_diario));
         } catch (Exception $e) {
             raise_error($e);
         }
@@ -690,12 +671,10 @@ class Aluno extends Usuario
         return AbstractEntity::ler_rest_generico("listar_alunos_ead", $id_diario, 'Aluno', ['nome', 'matricula', 'email', 'email_secundario', 'situacao']);
     }
 
-    public static function importar($id_diario)
+    public static function importar($id_diario, $oque=null, $list=null)
     {
         try {
-            $list = Aluno::ler_rest($id_diario);
-            Usuario::sincronizar_usuarios($id_diario, 'aluno(s)', $list);
-            Usuario::arrolar_usuarios($id_diario, 'aluno(s)', $list);
+            Usuario::importar($id_diario, 'docentes', Aluno::ler_rest($id_diario));
         } catch (Exception $e) {
             raise_error($e);
         }
