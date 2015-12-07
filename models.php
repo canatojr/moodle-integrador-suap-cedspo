@@ -1,5 +1,29 @@
 <?php
-require_once($CFG->dirroot . '/suap/lib.php');
+require_once('lib.php');
+include('../lib/coursecatlib.php');
+include('../course/lib.php');
+
+
+class Category {
+
+    public static function has_suap_id($moodle_id) {
+        global $DB;
+        $result = $DB->record_exists_sql('SELECT * FROM {course_categories} WHERE id = ? AND id_suap IS NOT NULL', array($moodle_id));
+        return $result;
+    }
+
+    public static function render_selectbox($id=null) {
+        $options = coursecat::make_categories_list('moodle/category:manage');
+        echo "<select name='categoria'>";
+        foreach ($options as $key=>$label):
+            echo "<option value='$key'";
+            echo $id == $key ? " selected>" : ">";
+            echo Category::has_suap_id($key) ? "(JÁ ASSOCIADO)" : "";
+            echo "$label</option>";
+        endforeach;
+        echo "</select>";
+    }
+}
 
 
 class AbstractEntity
@@ -290,31 +314,24 @@ class Turma extends AbstractEntity
 
     public function criar()
     {
-        global $DB, $contexto_turma_moodle;
+        try {
+            // Recupera o curso
+            $parent = Curso::ler_moodle($this->id_curso);
 
-        // Recupera o curso
-        $parent = Curso::ler_moodle($this->id_curso);
+            // Cria a categoria
+            $record = coursecat::create(array(
+                "name"=>"Turma: {$this->codigo}",
+                "idnumber"=>$this->codigo,
+                "description"=>'',
+                "descriptionformat"=>1,
+                "parent"=>$parent->id,
+            ));
 
-        // Cria a turma
-        $record = new stdClass();
-        $record->name = 'Turma: ' . $this->codigo;
-        $record->idnumber = $this->codigo;
-        //$record->description = $turma_suap['descricao'];
-        $record->description = '';
-        $record->timemodified = time();
-        $record->parent = $parent->id;
-        $record->id_suap = Turma::format_id_suap($this->id);
-        $record->depth = $parent->depth + 1;
-        $record->descriptionformat = 1;
-        $record->theme = $parent->theme;
-        $record->sortorder = '0';
-        $record->id = $DB->insert_record('course_categories', $record);
-        $record->path = "{$parent->path}/{$record->id}";
-        $this->id_moodle = $record->id;
-        $DB->update_record('course_categories', $record);
-
-        AbstractEntity::criar_contexto($contexto_turma_moodle, $record->id, $parent->context->path);
-        fix_course_sortorder();
+            // Associa ao SUAP
+            Turma::associar($this->id, $record->id);
+        } catch(Exception $e) {
+            raise_error($e);
+        }
     }
 }
 
@@ -342,9 +359,7 @@ class Diario extends AbstractEntity
 
     public function ja_associado()
     {
-        global $DB;
-        $result = $DB->get_records_sql('SELECT * FROM {course} WHERE id_suap = ?', array(Diario::format_id_suap($this->id)));
-        return $result;
+        return Diario::ler_moodle($this->id);
     }
 
     public static function ler_rest($id_turma)
@@ -402,56 +417,39 @@ class Diario extends AbstractEntity
             $diario_moodle = new Diario();
             $diario_moodle->id_turma = $id_turma;
             $diario_moodle->criar($diario);
+            echo "<p>O diário <b>{$diario_moodle->fullname}</b> já foi criado com sucesso. <a class='btn btn-small' href='../course/management.php?categoryid={$diario_moodle->category}&courseid={$diario_moodle->id}'>Acessar</a></p>";
         } else {
             echo "<p>O diário <b>{$diario_moodle->fullname}</b> já foi criado anteriormente. <a class='btn btn-small' href='../course/management.php?categoryid={$diario_moodle->category}&courseid={$diario_moodle->id}'>Acessar</a></p>";
         }
 
-        Professor::importar($id_diario);
-        Aluno::importar($id_diario);
+//        Professor::importar($id_diario);
+//        Aluno::importar($id_diario);
     }
 
     public function criar($diario = null)
     {
-        global $DB, $contexto_diario_moodle, $enrol_type, $enrol_roleid;
+        try {
+            global $DB, $contexto_turma_moodle;
 
-        // Recuperar a turma
-        $parent = Turma::ler_moodle($this->id_turma);
+            // Recupera a turma
+            $parent = Turma::ler_moodle($this->id_turma);
 
-        // Criar o diário
-        $record = new stdClass();
-        $record->category = $parent->id;
-        $record->fullname = "[{$parent->idnumber}.{$diario->sigla}] {$diario->descricao}";
-        $record->shortname = "[{$parent->idnumber}.{$diario->sigla}]";
-        $record->idnumber = "{$parent->idnumber}.{$diario->sigla}";
-        $record->summary = '';
-        $record->summaryformat = 1;
-        $record->newsitems = 5;
-        $record->timecreated = time();
-        $record->timemodified = time();
-        $record->cacherev = time();
-        $record->id_suap = Diario::format_id_suap($diario->id);
-        $record->id = $DB->insert_record('course', $record);
-        $DB->update_record('course', $record);
+            // Cria o diário
+            $record = create_course((object)array(
+                'category'=>$parent->id,
+                'fullname'=>"[{$parent->idnumber}.{$diario->sigla}] {$diario->descricao}",
+                'shortname'=>"[{$parent->idnumber}.{$diario->sigla}]",
+                'idnumber'=>"{$parent->idnumber}.{$diario->sigla}",
+            ));
 
-        AbstractEntity::criar_contexto($contexto_diario_moodle, $record->id, $parent->context->path);
-
-
-        $sortorder=0;
-        foreach ($enrol_type as $key=>$value) {
-            $enrol = new stdClass();
-            $enrol->enrol = $value;
-            $enrol->status = 0;
-            $enrol->courseid = $record->id;
-            $enrol->sortorder = $sortorder;
-            $enrol->expirythreshold = 86400;
-            $enrol->roleid = $enrol_roleid[$key];
-            $enrol->id = $DB->insert_record('enrol', $enrol);
-            $sortorder++;
+            // Associa ao SUAP
+            Diario::associar($diario->id, $record->id);
+            $this->id = $record->id;
+            $this->fullname = $record->fullname;
+            $this->category = $parent->id;
+        } catch(Exception $e) {
+            raise_error($e);
         }
-
-        echo "<p><a href='../course/management.php?categoryid={$parent->id}&courseid={$record->id}'>Acessar</a></p>";
-
-        fix_course_sortorder();
     }
 }
 
