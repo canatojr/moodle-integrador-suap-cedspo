@@ -8,6 +8,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $curso_partes = explode(" :: ", $curso);
     $id_curso = $curso_partes[0];
     Diario::associar($id_diario, $id_curso);
+    header("Location: listar_cursos.php");
+    exit;
 }
 
 $rows = Diario::ler_cursos();

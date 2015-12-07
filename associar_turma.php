@@ -1,11 +1,15 @@
 <?php
 require_once("header.php");
+include('../lib/coursecatlib.php');
+$options = coursecat::make_categories_list('moodle/category:manage');
 
 $id_turma = isset($_GET['id_turma']) ? $_GET['id_turma'] : die('Parâmetros incompletos (id_turma).');
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $id_categoria = isset($_POST['categoria']) ? $_POST['categoria'] : die('Parâmetros incompletos (categoria).');
     Turma::associar($id_turma, $id_categoria);
+    header("Location: listar_cursos.php");
+    exit;
 }
 
 $categorias = Curso::ler_categorias();
