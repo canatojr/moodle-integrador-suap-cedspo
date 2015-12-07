@@ -69,7 +69,10 @@ function json_request($service, $params)
         $erro = json_decode($json_response, true);
         die("REST ERRO: " . $erro['erro']);
     }
-    return json_decode($json_response, true);
+
+    $result = json_decode($json_response, true);
+
+    return count($result) == 1 && array_key_exists(0, $result) ? [] : $result;
 }
 
 function render_selectbox($name, $list, $prop_id = 'id', $prop_name = 'name', $selected_value = null, $vazio = 'Escolha...', $another_key = null)
