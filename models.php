@@ -235,6 +235,81 @@ class Curso
         };
         echo "</ol>";
     }
+
+    public static function auto_associar($id_curso, $ano_inicial, $periodo_inicial, $ano_final, $periodo_final) {
+        global $DB;
+        try {
+            $ano_inicial = (int)$ano_inicial;
+            $periodo_inicial = (int)$periodo_inicial;
+            $ano_final = (int)$ano_final;
+            $periodo_final = (int)$periodo_final;
+
+            for ($ano=$ano_inicial; $ano<=$ano_final; $ano++) {
+                for ($periodo=1; $periodo<=2; $periodo++) {
+                    if ( ($ano==$ano_inicial && $periodo<$periodo_inicial) || ($ano==$ano_final && $periodo>$periodo_final) ) {
+                        continue;
+                    }
+                    foreach (Turma::ler_rest($id_curso, $ano, $periodo) as $turma_suap) {
+                        $sql = "SELECT c.* FROM {course_categories} c WHERE idnumber = ?";
+                        $data = array($turma_suap->codigo);
+                        echo "<li>Auto associando turma pelo idnumber igual a <b>{$turma_suap->codigo}</b>";
+                        $turmas_moodle = $DB->get_records_sql($sql, $data);
+                        if (count($turmas_moodle) == 1) {
+                            foreach ($turmas_moodle as $turma_moodle):
+                                echo " (<b>{$turma_moodle->name}</b>)";
+                                $turma_moodle2 = Turma::ler_moodle($turma_suap->id);
+                                if ($turma_moodle2 && $turma_moodle2->id == $turma_moodle->id) {
+                                    echo " - NADA A FAZER: JÁ ASSOCIADO.";
+                                } elseif ($turma_moodle2 && $turma_moodle2->id != $turma_moodle->id) {
+                                    echo " - PROBLEMA: JÁ ASSOCIADO A OUTRA 'CATEGORIA'.";
+                                } else {
+                                    Turma::associar($turma_suap->id, $turma_moodle->id);
+                                    echo " - ASSOCIADO.";
+                                }
+                                echo "<ol>";
+                                $diarios = Diario::ler_rest($turma_suap->id);
+                                if (count($diarios) > 0) {
+                                    foreach ($diarios as $diario_suap):
+                                        $sql = "SELECT * FROM {course} WHERE idnumber = ?";
+                                        $idnumber_diario = "{$turma_suap->codigo}.{$diario_suap->sigla}";
+                                        $data = array($idnumber_diario);
+
+                                        echo "<li>Auto associando o diário a um curso onde o idnumber=<b>{$idnumber_diario}</b>";
+                                        $diarios_moodle = $DB->get_records_sql($sql, $data);
+                                        if (count($diarios_moodle) == 1) {
+                                            foreach ($diarios_moodle as $diario_moodle):
+                                                $diario_moodle2 = Diario::ler_moodle($diario_suap->id);
+                                                if ($diario_moodle2 && $diario_moodle2->id == $diario_moodle->id) {
+                                                    echo " - NADA A FAZER: JÁ ASSOCIADO.";
+                                                } elseif ($diario_moodle2 && $diario_moodle2->id != $diario_moodle->id) {
+                                                    echo " - PROBLEMA: JÁ ASSOCIADO A OUTRO 'COURSE'.";
+                                                } else {
+                                                    Diario::associar($diario_suap->id, $diario_moodle->id);
+                                                    echo " - ASSOCIADO.";
+                                                }
+                                            endforeach;
+                                        } else {
+                                            echo " - NADA A FAZER: NÃO ENCONTRADO.";
+                                        }
+                                        echo "</li>";
+                                    endforeach;
+                                } else {
+                                    echo "<li>Não existem diários para esta turma.</li>";
+                                }
+                                echo "</ol>";
+                            endforeach;
+                        } elseif (count($turmas_moodle) == 1) {
+                            echo " - PROBLEMA: MAIS DE UMA TURMA COM ESTE idnumber.";
+                        } else {
+                            echo " - NADA A FAZER: NÃO ENCONTRADO.";
+                        }
+                    };
+                }
+            }
+        } catch(Exception $e) {
+            raise_error($e);
+        }
+    }
 }
 
 

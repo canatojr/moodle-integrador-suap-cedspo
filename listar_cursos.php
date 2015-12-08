@@ -33,6 +33,7 @@ $periodo = isset($_GET['periodo']) ? $_GET['periodo'] : '1';
             echo "<td>";
             if ($row->ja_associado()) {
                 echo "<a href='importar_diario.php?id_curso={$row->id}&ano={$ano}&periodo={$periodo}' class='btn btn-mini btn-success'>Importar</a>";
+                echo "<a href='auto_associar.php?id_curso={$row->id}' class='btn btn-mini btn-info'>Auto associar</a>";
                 echo "<a href='listar_turmas.php?id_curso={$row->id}&ano={$ano}&periodo={$periodo}' class='btn btn-mini'>Turmas</a>";
             } else {
                 echo "<a href='associar_curso.php?id_curso={$row->id}' class='btn btn-mini btn-success'>Associar</a>";
