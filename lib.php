@@ -3,7 +3,7 @@
 $suap_prefix_url = "https://suap.ifrn.edu.br/edu/api";
 $suap_token = "676367c4877e17034690cac73d386921f49b78a9";
 $suap_id_campus_ead = '14';
-$suap_min_year = '2012';
+$suap_min_year = '2013';
 $current_year = date("Y");
 $contexto_turma_moodle = '40';
 $contexto_diario_moodle = '50';
