@@ -11,8 +11,7 @@ class Category {
 
     public static function has_suap_id($moodle_id) {
         global $DB;
-        $result = $DB->record_exists_sql('SELECT * FROM {course_categories} WHERE id = ? AND id_suap IS NOT NULL', array($moodle_id));
-        return $result;
+        return $DB->get_record_sql('SELECT * FROM {course_categories} WHERE id = ? AND id_suap IS NOT NULL', array($moodle_id));
     }
 
     public static function render_selectbox($id=null) {
