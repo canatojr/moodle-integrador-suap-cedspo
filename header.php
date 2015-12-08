@@ -25,7 +25,7 @@ $PAGE->requires->css('/suap/style.css');
 echo $OUTPUT->header();
 ?>
 <ul class="nav tab">
+    <li><a href="listar_cursos.php" class="btn">Listar cursos</a></li>
     <li><a href="listar_campus.php" class="btn">Listar campus</a></li>
     <li><a href="listar_polos.php" class="btn">Listar polos</a></li>
-    <li><a href="listar_cursos.php" class="btn">Listar cursos</a></li>
 </ul>
