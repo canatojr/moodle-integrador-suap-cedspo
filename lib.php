@@ -53,7 +53,7 @@ function json_request($service, $params)
         "Authorization: Token $suap_token"));
     curl_setopt($curl, CURLOPT_POST, true);
 
-    if ($params) {
+    if (isset($params)) {
         $content = json_encode($params);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $content);
     }
