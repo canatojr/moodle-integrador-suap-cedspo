@@ -34,7 +34,6 @@ class AbstractEntity
     {
         try {
             $response = json_request($service, array('id_diario' => $id));
-            dump($response);
             $result = array();
             foreach ($response as $id => $obj) {
                 $instance = new $class($id);
