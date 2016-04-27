@@ -34,6 +34,7 @@ class AbstractEntity
     {
         try {
             $response = json_request($service, array('id_diario' => $id));
+            dump($response);
             $result = array();
             foreach ($response as $id => $obj) {
                 $instance = new $class($id);
@@ -646,11 +647,13 @@ class Usuario extends AbstractEntity
     {
         global $DB, $default_user_preferences;
         $usuario = $DB->get_record("user", array("username" => $this->getUsername()));
+        $nome_parts = explode(' ', $this->nome);
+        $lastname = array_pop($nome_parts);
+        $firstname = implode(' ', $nome_parts);
         if (!$usuario) {
-            $nome_parts = explode(' ', $this->nome);
             $this->id_moodle = user_create_user(array(
-                'firstname'=>array_pop($nome_parts),
-                'lastname'=>implode(' ', $nome_parts),
+                'lastname'=>$lastname,
+                'firstname'=>$firstname,
                 'username'=>$this->getUsername(),
                 'auth'=>'ldap',
                 'password'=>'not cached',
@@ -667,7 +670,12 @@ class Usuario extends AbstractEntity
             $usuario->id = $this->id_moodle;
             $oper = 'Criado';
         } else {
-            user_update_user(array('id'=>$usuario->id, 'suspended'=>$this->getSuspended()), false);
+            user_update_user(array(
+                'id'=>$usuario->id, 
+                'suspended'=>$this->getSuspended(),
+                'lastname'=>$lastname,
+                'firstname'=>$firstname,
+            ), false);
             $oper = 'Atualizado';
         }
 
