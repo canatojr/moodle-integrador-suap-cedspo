@@ -18,3 +18,19 @@ dl.oneline > dt, dl.oneline > dd {
 /*.log LI:before { content: counters(item, ".") " "; counter-increment: item }*/
 
 .log OL { list-style: none }
+
+.as_row {
+  display: block;
+}
+
+.disabled {
+  color: silver;
+}
+
+.jah_associado {
+  color: red;
+}
+
+.jah_associado:before {
+  content: "(JÁ ASSOCIADO) ";
+}

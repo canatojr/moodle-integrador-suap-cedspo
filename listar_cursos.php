@@ -7,7 +7,7 @@ $periodo = isset($_GET['periodo']) ? $_GET['periodo'] : '1';
     <h3>Listar cursos</h3>
     <form>
         <dl class='oneline'>
-            <dt>Ano:</dt>
+            <dt>Ingresso no ano:</dt>
             <dd><input name='ano' type='number' min='<?php echo $suap_min_year; ?>' max='<?php echo $current_year; ?>'
                        step='1' value="<?php echo $ano; ?>"/></dd>
             <dt>Período:</dt>
@@ -29,16 +29,16 @@ $periodo = isset($_GET['periodo']) ? $_GET['periodo'] : '1';
         <tbody>
         <?php
         foreach (Curso::ler_rest($ano, $periodo) as $row):
-            echo "<tr><td>{$row->id}</td><td>{$row->codigo}</td><td>{$row->nome}</td><td>{$row->descricao}</td>";
+            echo "<tr><td>{$row->id_suap}</td><td>{$row->codigo}</td><td>{$row->nome}</td><td>{$row->descricao}</td>";
             echo "<td>";
             if ($row->ja_associado()) {
-                echo "<a href='importar_diario.php?id_curso={$row->id}&ano={$ano}&periodo={$periodo}' class='btn btn-mini btn-success'>Importar</a>";
-                echo "<a href='auto_associar.php?id_curso={$row->id}' class='btn btn-mini btn-info'>Auto associar</a>";
-                echo "<a href='listar_turmas.php?id_curso={$row->id}&ano={$ano}&periodo={$periodo}' class='btn btn-mini'>Turmas</a>";
+                echo "<a href='importar_diario.php?id_curso={$row->id_suap}&ano={$ano}&periodo={$periodo}' class='btn btn-mini btn-success'>Importar</a>";
+                echo "<a href='auto_associar.php?id_curso={$row->id_suap}' class='btn btn-mini btn-info'>Auto associar</a>";
+                echo "<a href='listar_turmas.php?id_curso={$row->id_suap}&ano={$ano}&periodo={$periodo}' class='btn btn-mini'>Turmas</a>";
             } else {
-                echo "<a href='associar_curso.php?id_curso={$row->id}' class='btn btn-mini btn-success'>Associar</a>";
+                echo "<a href='associar_curso.php?id_curso={$row->id_suap}' class='btn btn-mini btn-success'>Associar</a>";
             }
-            echo "<a href='listar_componentes.php?id_curso={$row->id}&ano={$ano}&periodo={$periodo}' class='btn btn-mini'>Componentes</a>";
+            echo "<a href='listar_componentes.php?id_curso={$row->id_suap}&ano={$ano}&periodo={$periodo}' class='btn btn-mini'>Componentes</a>";
             echo "</td></tr>";
         endforeach
         ?>

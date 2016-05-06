@@ -6,17 +6,18 @@ $id_curso = isset($_GET['id_curso']) ? $_GET['id_curso'] : die('Parâmetros inco
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $id_categoria = isset($_POST['categoria']) ? $_POST['categoria'] : die('Parâmetros incompletos (categoria).');
-    Curso::associar($id_curso, $id_categoria);
+    $curso = new Curso($id_curso);
+    $curso->id_moodle = $id_categoria;
+    $curso->associar();
     header("Location: listar_cursos.php");
     exit;
 }
 
 require_once("header.php");
-$categorias = Curso::ler_categorias();
 ?>
-    <h3>Associar curso '<?php echo $id_curso; ?>' à uma categoria</h3>
+    <h3>Associar curso '<?php echo $id_curso; ?>' a uma categoria</h3>
     <form method='POST'>
-        <?php Category::render_selectbox() ?>
+        <?php Category::render_selectbox(NIVEL_CURSO) ?>
         <input type='submit' value='Aplicar'/>
     </form>
 <?php
