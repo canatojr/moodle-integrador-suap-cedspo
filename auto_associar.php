@@ -30,11 +30,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $ano_final = explode('.', $ano_periodo_final)[0];
     $periodo_final = explode('.', $ano_periodo_final)[1];
     echo "<div class='log'><ol><li>Inicio.</li>";
-    Curso::auto_associar($id_curso, $ano_inicial, $periodo_inicial, $ano_final, $periodo_final);
-    echo "<li>Fim.</li><li class='btn'><a href='../admin/purgecaches.php' target='_blank'>Deseja limpar o cache agora?</a></li></ol></div>";
+    (new Curso($id_curso))->auto_associar($ano_inicial, $periodo_inicial, $ano_final, $periodo_final);
+    echo "<li>Fim.</li>";
+    // echo "<li class='btn'><a href='../admin/purgecaches.php' target='_blank'>Deseja limpar o cache agora?</a></li>";
+    echo "</ol></div>";
 } else {
-    echo "<h3>Associar automaticamente as turmas e diários </h3><form method='POST'><dl>";
-    echo "<dt>Curso: </dt><dd>" . Curso::ler_moodle($id_curso)->name . "</dd>";
+    echo "<h3>Associar automaticamente os diários </h3><form method='POST'><dl>";
+    echo "<p>Caso existam <b>categorias com idnumber no Moodle</b> iguais aos <b>códigos da turma no SUAP</b> esta categoria será associada a uma turma.
+    Caso existam <b>courses com idnumber no Moodle</b> iguais aos <b>códigos completo do diários no SUAP</b> estes courses serão associados a um diários.
+    Fora isso, nada mais será alterado, criado ou excluído.<p>";
+    echo "<dt>Curso: </dt><dd>" . (new Curso($id_curso))->ler_moodle()->name . "</dd>";
     echo "<dt>Ano/Período inicial: </dt><dd>"; ano_periodo_render_selectbox('ano_periodo_inicial'); echo "</dd>";
     echo "<dt>Ano/Período final: </dt><dd>"; ano_periodo_render_selectbox('ano_periodo_final'); echo "</dd>";
     echo "<input type='submit' value='Associar'/>";

@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else if ($id_curso && $id_turma && $codigo) {
         Turma::importar($id_curso, $id_turma, $codigo);
     } else if ($id_curso) {
-        Curso::importar($id_curso, $ano, $periodo);
+      (new Curso($id_curso))->importar($ano, $periodo);
     } else {
         die('Informe um curso (+ ano e periodo), turma (+ curso e codigo) ou diário (+ turma).');
     }
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die('Informe um curso (+ ano e periodo), turma (+ curso e codigo) ou diário (+ turma).');
     }
     echo "<h3>Confirmar a importação </h3><dl>";
-    echo $id_curso ? "<dt>Curso: </dt><dd>" . Curso::ler_moodle($id_curso)->name . " ($ano.$periodo)</dd>" : "";
+    echo $id_curso ? "<dt>Curso: </dt><dd>" . (new Curso($id_curso))->ler_moodle()->name . " ($ano.$periodo)</dd>" : "";
     echo $id_turma ? "<dt>Turma: </dt><dd>$id_turma</dd>" : "";
     echo $codigo ? "<dt>Código da turma: </dt><dd>$codigo</dd>" : "";
     echo $id_diario ? "<dt>Diário: </dt><dd>$id_diario</dd>" : "";
