@@ -34,7 +34,7 @@ $periodo = isset($_GET['periodo']) ? $_GET['periodo'] : '1';
             if ($row->ja_associado()) {
                 echo "<a href='importar_diario.php?id_curso={$row->id_on_suap}&ano={$ano}&periodo={$periodo}' class='btn btn-mini btn-success'>Importar</a>";
                 echo "<a href='auto_associar.php?id_curso={$row->id_on_suap}' class='btn btn-mini btn-info'>Auto associar</a>";
-                echo "<a href='listar_turmas.php?id_curso={$row->id_on_suap}&ano={$ano}&periodo={$periodo}' class='btn btn-mini'>Turmas</a>";
+                echo "<a href='listar_turmas.php?id_curso={$row->id_on_suap}&codigo={$row->codigo}&ano={$ano}&periodo={$periodo}' class='btn btn-mini'>Turmas</a>";
             } else {
                 echo "<a href='associar_curso.php?id_curso={$row->id_on_suap}' class='btn btn-mini btn-success'>Associar</a>";
             }
