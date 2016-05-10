@@ -1,14 +1,13 @@
 <?php
 require_once("../config.php");
 require_once("models.php");
+require_login();
 
 $context = context_system::instance();
 
 //if (!has_capability('blocks/suap:viewpage', $context)) {
 //  print_error(get_string('notallowed', 'block_suap'));
 //}
-
-require_login();
 
 $PAGE->set_context($context);
 // $PAGE->set_pagelayout('standard');
@@ -21,7 +20,6 @@ $PAGE->requires->jquery_plugin('ui-css');
 // $PAGE->requires->js("/suap/js/json.js");
 // $PAGE->requires->js_init_call('M.block_suap.init');
 $PAGE->requires->css('/suap/style.css');
-
 echo $OUTPUT->header();
 ?>
 <ul class="nav tab">
