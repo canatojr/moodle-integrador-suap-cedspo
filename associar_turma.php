@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     exit;
 }
 
-$categorias = Curso::ler_categorias();
+$categorias = ler_categories();
 ?>
     <h3>Associar curso '<?php echo $id_turma; ?>' à uma categoria</h3>
     <form method='POST'>
