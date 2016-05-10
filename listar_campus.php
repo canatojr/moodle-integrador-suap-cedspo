@@ -3,13 +3,7 @@ require_once("header.php");
 ?>
     <h3>Listar campi</h3>
     <table class="table">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nome do campus</th>
-            <th>Sigla do campus</th>
-        </tr>
-        </thead>
+        <thead><tr><th>ID</th><th>Nome do campus</th><th>Sigla do campus</th></tr></thead>
         <tbody>
         <?php
         foreach (Campus::ler_rest() as $row):
