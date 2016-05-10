@@ -13,7 +13,7 @@ require_once("header.php");
         <tbody>
         <?php
         foreach (Campus::ler_rest() as $row):
-            echo "<tr><td>{$row->id}</td><td>{$row->nome}</td><td>{$row->sigla}</td></tr>";
+            echo "<tr><td>{$row->id_on_suap}</td><td>{$row->nome}</td><td>{$row->sigla}</td></tr>";
         endforeach
         ?>
         </tbody>
