@@ -3,8 +3,14 @@ require_once('lib.php');
 require_once('../lib/coursecatlib.php');
 require_once('../course/lib.php');
 require_once('../user/lib.php');
+require_once('../group/lib.php');
 require_once("../enrol/locallib.php");
 require_once("../enrol/externallib.php");
+
+function get_or_die($param) {
+    return isset($_GET[$param]) ? $_GET[$param] : die("Parâmetros incompletos ($param).");
+}
+
 
 function merge_objects($source, $destin)
 {
@@ -16,10 +22,26 @@ function merge_objects($source, $destin)
     }
 }
 
+
 function cmp_by_label($a, $b)
 {
     return strcmp($a->getLabel(), $b->getLabel());
 }
+
+
+function ler_courses()
+{
+    global $DB;
+    return $DB->get_records_sql("SELECT id, fullname, idnumber, id_suap FROM {course} ORDER BY fullname");
+}
+
+
+function ler_categories()
+{
+    global $DB;
+    return $DB->get_records('course_categories');
+}
+
 
 class AbstractEntity
 {
@@ -118,18 +140,91 @@ class AbstractEntity
         return $this;
 
     }
+}
 
-//  static function criar_contexto($contextlevel, $instanceid, $base_path)
-//  {
-//    global $DB;
-//    $context = new stdClass();
-//    $context->contextlevel = $contextlevel;
-//    $context->instanceid = $instanceid;
-//    $context->depth = count(explode('/', $base_path));
-//    $context->id = $DB->insert_record('context', $context);
-//    $context->path = "{$base_path}/{$context->id}";
-//    $DB->update_record('context', $context);
-//  }
+
+class Polo extends AbstractEntity
+{
+    public $nome;
+
+    function __construct($id_on_suap, $nome)
+    {
+        parent::__construct($id_on_suap);
+        $this->nome = $nome;
+    }
+
+    public static function ler_rest()
+    {
+        global $polos;
+        if (!$polos) {
+            $response = json_request("listar_polos_ead");
+            $result = [];
+            foreach ($response as $id_on_suap => $obj) {
+                $result[] = new Polo($id_on_suap, $obj['descricao']);
+            }
+            $polos = $result;
+        }
+        return $polos;
+    }
+}
+
+
+class Campus extends AbstractEntity
+{
+    public $nome;
+    public $sigla;
+
+    function __construct($id_on_suap, $nome, $sigla)
+    {
+        parent::__construct($id_on_suap);
+        $this->nome = $nome;
+        $this->sigla = $sigla;
+    }
+
+    public static function ler_rest()
+    {
+        $response = json_request("listar_campus_ead");
+        $result = [];
+        foreach ($response as $id_on_suap => $obj) {
+            $result[] = new Campus($id_on_suap, $obj['descricao'], $obj['sigla']);
+        }
+        return $result;
+    }
+}
+
+
+class ComponenteCurricular extends AbstractEntity
+{
+    public $tipo;
+    public $periodo;
+    public $qtd_avaliacoes;
+    public $descricao_historico;
+    public $optativo;
+    public $descricao;
+    public $sigla;
+
+    function __construct($id_on_suap, $tipo, $periodo, $qtd_avaliacoes, $descricao_historico, $optativo, $descricao, $sigla)
+    {
+        parent::__construct($id_on_suap);
+        $this->tipo = $tipo;
+        $this->periodo = $periodo;
+        $this->qtd_avaliacoes = $qtd_avaliacoes;
+        $this->descricao_historico = $descricao_historico;
+        $this->optativo = $optativo;
+        $this->descricao = $descricao;
+        $this->sigla = $sigla;
+    }
+
+    public static function ler_rest($id_curso)
+    {
+        $response = json_request("listar_componentes_curriculares_ead",
+            array('id_curso' => $id_curso));
+        $result = [];
+        foreach ($response as $id_on_suap => $o) {
+            $result[] = new ComponenteCurricular($id_on_suap, $o['tipo'], $o['periodo'], $o['qtd_avaliacoes'], $o['descricao_historico'], $o['optativo'], $o['descricao'], $o['sigla']);
+        }
+        return $result;
+    }
 }
 
 
@@ -170,43 +265,6 @@ class Category extends AbstractEntity
             echo "<label class='as_row $jah_associado' ><input type='radio' value='$key' name='categoria' $jah_associado />$label</label>";
         endforeach;
     }
-    /*
-      protected function ler_parent($id_parent)
-      {
-        return null;
-      }
-
-      function criar()
-      {
-        // Recupera o parent
-        $parent = $this->ler_parent($this->id_curso);
-
-        // Cria a categoria
-        $record = coursecat::create(array(
-          "name"=>"Turma: {$this->codigo}",
-          "idnumber"=>$this->codigo,
-          "description"=>'',
-          "descriptionformat"=>1,
-          "parent"=>$parent->id,
-        ));
-
-        // Associa ao SUAP
-        $this->associar($record->id);
-        // $this->id_moodle = $record->id;
-      }
-    */
-    /*
-      public static function ler_categorias()
-      {
-        global $DB;
-        $courses = [];
-        $result = $DB->get_records('course_categories');
-        foreach ($result as $course) {
-          $courses[] = $course;
-        }
-        return $courses;
-      }
-    */
 }
 
 
@@ -249,6 +307,7 @@ class Curso extends Category
             echo "<li>";
             $turma->importar();
             echo "</li>";
+            return;
         };
         echo "</ol>";
     }
@@ -294,13 +353,11 @@ class Curso extends Category
 
 class Turma extends Category
 {
-    public $id_curso;
     public $curso;
 
-    function __construct($id_on_suap, $codigo, $id_curso, $curso)
+    function __construct($id_on_suap, $codigo, $curso)
     {
         parent::__construct($id_on_suap, $codigo);
-        $this->id_curso = $id_curso;
         $this->curso = $curso;
     }
 
@@ -312,66 +369,47 @@ class Turma extends Category
     static function ler_rest($id_curso, $ano_letivo, $periodo_letivo, $curso = null)
     {
         $response = json_request("listar_turmas_ead",
-            ['id_curso' => $id_curso,
-                'ano_letivo' => $ano_letivo,
-                'periodo_letivo' => $periodo_letivo]);
+            ['id_curso' => $id_curso, 'ano_letivo' => $ano_letivo, 'periodo_letivo' => $periodo_letivo]);
         $result = [];
         foreach ($response as $id_on_suap => $obj) {
-            $result[] = new Turma($id_on_suap, $obj['codigo'], $id_curso, $curso);
+            $result[] = new Turma($id_on_suap, $obj['codigo'], $curso);
         }
         usort($result, 'cmp_by_label');
         return $result;
     }
 
-
     function importar()
     {
-        dumpd($this);
-//    $curso = (new Curso($this->id_curso))->ler_moodle();
-//    echo "Importando a turma <b>{$this->codigo}</b> (<b>{$this->id_moodle}</b>)...";
-        /*
+        echo "Importando a turma <b>{$this->codigo}</b>...";
         // Se não existe uma category para esta turma criá-la como filha do curso
-        $turma_moodle = Turma::ler_moodle($id_turma, $codigo);
-        if (!$turma_moodle) {
-            $turma = new Turma($id_turma, $codigo);
-            $turma->id_curso = $id_curso;
-            $turma->criar();
+        $this->ler_moodle();
+        if (!$this->id_moodle) {
+            $this->criar();
             echo " A turma foi criada.";
-            $categoryid = $turma->id_moodle;
         } else {
             echo " A turma já existe.";
-            $categoryid = $turma->id;
         }
-        */
-        /*
-        echo " A turma já existe. <a href='../course/management.php?categoryid={$categoryid}' class='btn btn-mini'>Acessar</a>";
-        echo "<ol>";
-        foreach (Diario::ler_rest($id_turma) as $diario) {
-            Diario::importar($id_turma, $diario->id, $diario);
+        echo " <a href='../course/management.php?categoryid={$this->id_moodle}' class='btn btn-mini'>Acessar</a><ol>";
+        foreach (Diario::ler_rest($this) as $diario) {
+            $diario->importar();
         };
         echo "</ol>";
-        */
     }
 
     function criar()
     {
-        /*
-        // Recupera o curso
-        $parent = Curso::ler_moodle($this->id_curso);
-    // $DB->record_exists('course_categories', array('idnumber' => $data->idnumber))
         // Cria a categoria
         $record = coursecat::create(array(
-            "name"=>"Turma: {$this->codigo}",
-            "idnumber"=>$this->codigo,
-            "description"=>'',
-            "descriptionformat"=>1,
-            "parent"=>$parent->id,
+            "name" => "Turma: {$this->codigo}",
+            "idnumber" => $this->codigo,
+            "description" => '',
+            "descriptionformat" => 1,
+            "parent" => $this->curso->id_moodle,
         ));
+        $this->id_moodle = $record->id;
 
         // Associa ao SUAP
-        $this->associar($record->id);
-        // $this->id_moodle = $record->id;
-        */
+        $this->associar();
     }
 }
 
@@ -389,7 +427,6 @@ class Diario extends AbstractEntity
         $this->sigla = $sigla;
         $this->situacao = $situacao;
         $this->descricao = $descricao;
-        $this->id_turma = $id_turma;
         $this->turma = $turma;
     }
 
@@ -424,94 +461,52 @@ class Diario extends AbstractEntity
         return $result;
     }
 
-    function importar($id_turma, $id_diario, $diario = null)
+    function importar()
     {
-        /*
-        $turma = Turma::ler_moodle($id_turma);
-        echo "<li>Importando o diário (<b>$id_diario</b>)";
-        // Se não existe um course para este curso criá-la como filho do período
-        $diario_moodle = Diario::ler_moodle($id_diario);
-        if (!$diario_moodle) {
-          $diario_moodle = new Diario();
-          $diario_moodle->id_turma = $id_turma;
-          $diario_moodle->criar($diario);
-          echo " <b>{$diario_moodle->fullname}</b> ... foi criado com sucesso. ";
+        echo "<li>Importando o diário (<b>{$this->getCodigo()}</b>)... ";
+        $this->ler_moodle();
+        if ($this->ja_associado()) {
+            echo "já existia. ";
         } else {
-          echo " <b>{$diario_moodle->fullname}</b> ... já existia. ";
+            $this->criar();
+            echo "foi criado com sucesso. ";
         }
-        echo "<a class='btn btn-mini' href='../course/management.php?categoryid={$diario_moodle->category}&courseid={$diario_moodle->id}'>Configuração</a>";
-        echo "<a class='btn btn-mini' href='../course/view.php?id={$diario_moodle->id}'>Acessar</a>";
+        echo "<a class='btn btn-mini' href='../course/management.php?categoryid={$this->category}&courseid={$this->id_moodle}'>Configurações do curso</a>";
+        echo "<a class='btn btn-mini' href='../course/view.php?id={$this->id_moodle}'>Acessar o curso</a>";
 
         echo "</li><ol>";
-        // Professor::importar($id_diario);
-        // Aluno::importar($id_diario);
+        Professor::sincronizar($this);
+        Aluno::sincronizar($this);
         echo "</ol>";
-        */
     }
 
-    function criar($diario = null)
+    function criar()
     {
-        /*
-        global $DB;
+        // Criar período
+        $periodo_numero = explode('.', $this->turma->getCodigo())[1];
+        $periodo_nome = "{$periodo_numero}º período";
+        $periodo = coursecat::create(array(
+            "name" => $periodo_nome,
+            "description" => $periodo_nome,
+            "descriptionformat" => 1,
+            "parent" => $this->turma->id_moodle,
+        ));
+        $periodo->id;
 
-        // Recupera a turma
-        $parent = Turma::ler_moodle($this->id_turma);
-
-        // Cria o diário
+        // Criar o diário
         $record = create_course((object)array(
-            'category'=>$parent->id,
-            'fullname'=>"[{$parent->idnumber}.{$diario->sigla}] {$diario->descricao}",
-            'shortname'=>"[{$parent->idnumber}.{$diario->sigla}]",
-            'idnumber'=>"{$parent->idnumber}.{$diario->sigla}",
+            'category'=>$periodo->id,
+            'fullname'=>"[{$this->getCodigo()}] {$this->descricao}",
+            'shortname'=>"[{$this->getCodigo()}]",
+            'idnumber'=>"{$this->getCodigo()}",
         ));
 
         // Associa ao SUAP
-        $diario->associar($record->id);
-        $this->id = $record->id;
-        $this->fullname = $record->fullname;
-        $this->category = $parent->id;
-        */
+        $this->id_moodle = $record->id;
+        $this->associar($record->id);
     }
 }
 
-/*
-  public static function ler_cursos()
-  {
-    global $DB;
-    $req = "SELECT id, fullname, idnumber, id_suap FROM {course} ORDER BY fullname";
-    $courses = [];
-    $result = $DB->get_records_sql($req);
-    foreach ($result as $course) {
-      $courses[] = $course;
-    }
-    return $courses;
-  }
-
-class Enrol extends AbstractEntity
-{
-    public $id;
-    public $enroltype;
-    public $courseid;
-    public $roleid;
-
-    public static function ler_ou_criar($enroltype,  $courseid,  $roleid)
-    {
-        global $DB;
-        $enrol = $DB->get_record('enrol', array('enrol'=>$enroltype, 'courseid'=>$courseid, 'roleid'=>$roleid));
-        if (!$enrol) {
-            $enrol = new stdClass();
-            $enrol->enrol = $enroltype;
-            $enrol->courseid = $courseid;
-            $enrol->roleid = $roleid;
-            $enrol->status = 0;
-            $enrol->expirythreshold = 86400;
-            $enrol->timecreated = time();
-            $enrol->timemodified = time();
-            $enrol->id = $DB->insert_record('enrol', $enrol);
-        }
-        return $enrol;
-    }
-}
 
 class Usuario extends AbstractEntity
 {
@@ -574,15 +569,16 @@ class Usuario extends AbstractEntity
         return $enrol_type[$this->getTipo()];
     }
 
-    protected static function importar($id_diario, $oque, $list)
+    protected static function sincronizar($diario, $oque, $list)
     {
         try {
-            $diario = Diario::ler_moodle($id_diario);
             echo "<li>Sincronizando <b>" . count($list) .  " $oque</b> do diário <b>{$diario->fullname}</b> ...<ol>";
-
             foreach ($list as $instance) {
-                $instance->sincronizar();
+                echo "<li>";
+                $instance->importar();
                 $instance->arrolar($diario);
+                $instance->engrupar($diario);
+                echo "</li>";
             }
             echo "</ol></li>";
         } catch (Exception $e) {
@@ -590,7 +586,7 @@ class Usuario extends AbstractEntity
         }
     }
 
-    function sincronizar()
+    function importar()
     {
         global $DB, $default_user_preferences;
         $usuario = $DB->get_record("user", array("username" => $this->getUsername()));
@@ -598,7 +594,7 @@ class Usuario extends AbstractEntity
         $lastname = array_pop($nome_parts);
         $firstname = implode(' ', $nome_parts);
         if (!$usuario) {
-            $this->id_moodle = user_create_user(array(
+            $this->id_moodle = user_create_user([
                 'lastname'=>$lastname,
                 'firstname'=>$firstname,
                 'username'=>$this->getUsername(),
@@ -609,7 +605,7 @@ class Usuario extends AbstractEntity
                 'timezone'=>'99',
                 'lang'=>'pt_br',
                 'confirmed'=>1,
-            ), false);
+            ], false);
 
             foreach ($default_user_preferences as $key=>$value) {
                 $this->criar_user_preferences($key, $value);
@@ -617,16 +613,16 @@ class Usuario extends AbstractEntity
             $usuario->id = $this->id_moodle;
             $oper = 'Criado';
         } else {
-            user_update_user(array(
+            user_update_user([
                 'id'=>$usuario->id,
                 'suspended'=>$this->getSuspended(),
                 'lastname'=>$lastname,
                 'firstname'=>$firstname,
-            ), false);
+            ], false);
             $oper = 'Atualizado';
         }
 
-        echo "<li>$oper <b>{$this->getUsername()} - {$this->nome} ({$this->getTipo()})</b> <a href='../user/profile.php?id={$usuario->id}' class='btn btn-mini'>Acessar</a></li>";
+        echo "$oper <b><a href='../user/profile.php?id={$usuario->id}'>{$this->getUsername()} - {$this->nome}</a> ({$this->getTipo()})</b>";
         $this->id_moodle = $usuario->id;
     }
 
@@ -637,41 +633,57 @@ class Usuario extends AbstractEntity
                            (object)array( 'userid'=>$this->id_moodle, 'name'=>$name, 'value'=>$value, ));
     }
 
-    function arrolar($diario_moodle) {
+    function arrolar($diario) {
         global $DB, $USER;
-        $enrol = Enrol::ler_ou_criar($this->getEnrolType(), $diario_moodle->id, $this->getRoleId());
+        $enrol = Enrol::ler_ou_criar($this->getEnrolType(), $diario->id_moodle, $this->getRoleId());
 
-        echo "<li>";
         $enrolment = $DB->get_record('user_enrolments', array('enrolid'=>$enrol->id,'userid'=>$this->id_moodle));
         if (!$enrolment) {
-            $id = $DB->insert_record('user_enrolments', (object)array(
-                'enrolid'=>$enrol->id,
-                'userid'=>$this->id_moodle,
-                'status'=>0,
-                'timecreated'=>time(),
-                'timemodified'=>time(),
-                'timestart'=>time(),
-                'modifierid'=>$USER->id,
-                'timeend'=>0,
-            ));
-            echo " Arrolado, ";
+            $id = $DB->insert_record('user_enrolments',
+                                     (object)['enrolid'=>$enrol->id,
+                                              'userid'=>$this->id_moodle,
+                                              'status'=>0,
+                                              'timecreated'=>time(),
+                                              'timemodified'=>time(),
+                                              'timestart'=>time(),
+                                              'modifierid'=>$USER->id,
+                                              'timeend'=>0,]);
+            echo " Foi arrolado. ";
         } else {
             echo " Já arrolado. ";
         }
 
-        $assignment = $DB->get_record('role_assignments', array('roleid'=>$this->getRoleId(), 'contextid'=>$diario_moodle->context->id, 'userid'=>$this->id_moodle, 'itemid'=>0));
+        $assignment = $DB->get_record('role_assignments',
+            array('roleid'=>$this->getRoleId(), 'contextid'=>$diario->context->id, 'userid'=>$this->id_moodle, 'itemid'=>0));
         if (!$assignment) {
-            $id2 = $DB->insert_record('role_assignments', (object)array(
-                'roleid'=>$this->getRoleId(),
-                'contextid'=>$diario_moodle->context->id,
-                'userid'=>$this->id_moodle,
-                'itemid'=>0,
-            ));
-            echo " atribuído ";
+            $id2 = $DB->insert_record('role_assignments',
+                                      (object)['roleid'=>$this->getRoleId(),
+                                               'contextid'=>$diario->context->id,
+                                               'userid'=>$this->id_moodle,
+                                               'itemid'=>0,]);
+            echo " Foi atribuído. ";
         } else {
-            echo " já atribuído ";
+            echo " Já atribuído. ";
         }
-        echo " <b>{$this->getUsername()} - {$this->nome} ({$this->getTipo()} )</b></li>";
+    }
+
+    function engrupar($diario) {
+        global $DB, $USER;
+        $polo = $this->getPolo();
+        if ($polo) {
+            $data = (object)['courseid' => $diario->id_moodle, 'name' => $polo->nome];
+            $group = $this->get_record('groups', $data);
+            if (!$group) {
+                groups_create_group($data);
+                $group = $this->get_record('groups', $data);
+            }
+            if ($this->get_record('groups_members', ['groupid' => $group->id, 'userid' => $this->id_moodle, ])) {
+                echo "Já estava no grupo <b>{$polo->nome}</b>.";
+            } else {
+                echo "Adicionado ao grupo <b>{$polo->nome}</b>.";
+                groups_add_member($group->id, $this->id_moodle);
+            }
+        }
     }
 }
 
@@ -683,113 +695,61 @@ class Professor extends Usuario
         return AbstractEntity::ler_rest_generico("listar_professores_ead", $id_diario, 'Professor', ['nome', 'login', 'tipo', 'email', 'email_secundario', 'status']);
     }
 
-    public static function importar($id_diario, $oque=null, $list=null)
+    public static function sincronizar($diario, $oque=null, $list=null)
     {
-        try {
-            Usuario::importar($id_diario, 'docentes', Professor::ler_rest($id_diario));
-        } catch (Exception $e) {
-            raise_error($e);
-        }
+        Usuario::sincronizar($diario, 'docentes', Professor::ler_rest($diario->id_on_suap));
     }
 }
 
 
 class Aluno extends Usuario
 {
+    public $polo;
+
+    public function getPolo() {
+        $polos = Polo::ler_rest();
+        foreach ($polos as $attr => $polo) {
+            if (intval($polo->id_on_suap) == intval ($this->polo)) {
+                return $polo;
+            }
+        }
+        return null;
+    }
+
     public static function ler_rest($id_diario)
     {
-        return AbstractEntity::ler_rest_generico("listar_alunos_ead", $id_diario, 'Aluno', ['nome', 'matricula', 'email', 'email_secundario', 'situacao']);
+        return AbstractEntity::ler_rest_generico("listar_alunos_ead", $id_diario, 'Aluno',
+                                                 ['nome', 'matricula', 'email', 'email_secundario', 'situacao', 'polo']);
     }
 
-    public static function importar($id_diario, $oque=null, $list=null)
+    public static function sincronizar($diario, $oque=null, $list=null)
     {
-        try {
-            Usuario::importar($id_diario, 'docentes', Aluno::ler_rest($id_diario));
-        } catch (Exception $e) {
-            raise_error($e);
+        Usuario::sincronizar($diario, 'alunos', Aluno::ler_rest($diario->id_on_suap));
+    }
+}
+
+class Enrol extends AbstractEntity
+{
+    public $id;
+    public $enroltype;
+    public $courseid;
+    public $roleid;
+
+    public static function ler_ou_criar($enroltype,  $courseid,  $roleid)
+    {
+        global $DB;
+        $enrol = $DB->get_record('enrol', array('enrol'=>$enroltype, 'courseid'=>$courseid, 'roleid'=>$roleid));
+        if (!$enrol) {
+            $enrol = new stdClass();
+            $enrol->enrol = $enroltype;
+            $enrol->courseid = $courseid;
+            $enrol->roleid = $roleid;
+            $enrol->status = 0;
+            $enrol->expirythreshold = 86400;
+            $enrol->timecreated = time();
+            $enrol->timemodified = time();
+            $enrol->id = $DB->insert_record('enrol', $enrol);
         }
+        return $enrol;
     }
 }
-*/
-
-/*
-class Polo extends AbstractEntity
-{
-  public $nome;
-
-  function __construct($id_on_suap, $nome)
-  {
-    parent::__construct($id_on_suap);
-    $this->nome = $nome;
-  }
-
-  public static function ler_rest()
-  {
-    $response = json_request("listar_polos_ead");
-    $result = [];
-    foreach ($response as $id_on_suap => $obj) {
-      $result[] = new Polo($id_on_suap, $obj['descricao']);
-    }
-    return $result;
-  }
-}
-
-
-class Campus extends AbstractEntity
-{
-  public $nome;
-  public $sigla;
-
-  function __construct($id_on_suap, $nome, $sigla)
-  {
-    parent::__construct($id_on_suap);
-    $this->nome = $nome;
-    $this->sigla = $sigla;
-  }
-
-  public static function ler_rest()
-  {
-    $response = json_request("listar_campus_ead");
-    $result = [];
-    foreach ($response as $id_on_suap => $obj) {
-      $result[] = new Campus($id_on_suap, $obj['descricao'], $obj['sigla']);
-    }
-    return $result;
-  }
-}
-
-
-class ComponenteCurricular extends AbstractEntity
-{
-  public $tipo;
-  public $periodo;
-  public $qtd_avaliacoes;
-  public $descricao_historico;
-  public $optativo;
-  public $descricao;
-  public $sigla;
-
-  function __construct($id_on_suap, $tipo, $periodo, $qtd_avaliacoes, $descricao_historico, $optativo, $descricao, $sigla)
-  {
-    parent::__construct($id_on_suap);
-    $this->tipo = $tipo;
-    $this->periodo = $periodo;
-    $this->qtd_avaliacoes = $qtd_avaliacoes;
-    $this->descricao_historico = $descricao_historico;
-    $this->optativo = $optativo;
-    $this->descricao = $descricao;
-    $this->sigla = $sigla;
-  }
-
-  public static function ler_rest($id_curso)
-  {
-    $response = json_request("listar_componentes_curriculares_ead",
-                             array('id_curso' => $id_curso));
-    $result = [];
-    foreach ($response as $id_on_suap => $o) {
-      $result[] = new ComponenteCurricular($id_on_suap, $o['tipo'], $o['periodo'], $o['qtd_avaliacoes'], $o['descricao_historico'], $o['optativo'], $o['descricao'], $o['sigla']);
-    }
-    return $result;
-  }
-}
-*/

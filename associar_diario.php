@@ -11,12 +11,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     header("Location: listar_cursos.php");
     exit;
 }
-
-$rows = Diario::ler_cursos();
 ?>
     <h3>Associar diário '<?php echo $id_diario; ?>' a um curso</h3>
     <form method='POST'>
-        <?php render_datalist('curso', $rows, 'id', 'fullname', "turma:{$id_diario}", 'id_suap'); ?>
+        <?php render_datalist('curso', ler_courses(), 'id', 'fullname', "turma:{$id_diario}", 'id_suap'); ?>
         <input type='submit' value='Aplicar'/>
     </form>
 <?php
