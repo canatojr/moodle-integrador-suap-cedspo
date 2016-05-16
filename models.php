@@ -307,7 +307,6 @@ class Curso extends Category
             echo "<li>";
             $turma->importar();
             echo "</li>";
-            return;
         };
         echo "</ol>";
     }
@@ -485,13 +484,13 @@ class Diario extends AbstractEntity
         // Criar período
         $periodo_numero = explode('.', $this->turma->getCodigo())[1];
         $periodo_nome = "{$periodo_numero}º período";
-        $periodo = coursecat::create(array(
-            "name" => $periodo_nome,
-            "description" => $periodo_nome,
-            "descriptionformat" => 1,
-            "parent" => $this->turma->id_moodle,
-        ));
-        $periodo->id;
+        $turma_id = $this->turma->id_moodle;
+        $periodo_params = ["parent" => $turma_id, 'name' => $periodo_nome];
+
+        $periodo = $this->get_record('course_categories', $periodo_params);
+        if (!$periodo) {
+            $periodo = coursecat::create($periodo_params);
+        }
 
         // Criar o diário
         $record = create_course((object)array(
@@ -655,6 +654,7 @@ class Usuario extends AbstractEntity
 
         $assignment = $DB->get_record('role_assignments',
             array('roleid'=>$this->getRoleId(), 'contextid'=>$diario->context->id, 'userid'=>$this->id_moodle, 'itemid'=>0));
+        $diario->ja_associado();
         if (!$assignment) {
             $id2 = $DB->insert_record('role_assignments',
                                       (object)['roleid'=>$this->getRoleId(),
