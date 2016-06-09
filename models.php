@@ -99,7 +99,8 @@ class AbstractEntity
 
     function get_record($tablename, $filters)
     {
-        return array_shift($this->get_records($tablename, $filters));
+	$array = $this->get_records($tablename, $filters);
+        return array_shift($array);
     }
 
     function getIdSUAP()
@@ -203,7 +204,7 @@ class ComponenteCurricular extends AbstractEntity
     public $descricao;
     public $sigla;
 
-    function __construct($id_on_suap, $tipo, $periodo, $qtd_avaliacoes, $descricao_historico, $optativo, $descricao, $sigla)
+    function __construct($id_on_suap=NULL, $tipo=NULL, $periodo=NULL, $qtd_avaliacoes=NULL, $descricao_historico=NULL, $optativo=NULL, $descricao=NULL, $sigla=NULL)
     {
         parent::__construct($id_on_suap);
         $this->tipo = $tipo;
@@ -232,7 +233,7 @@ class Category extends AbstractEntity
 {
     public $codigo;
 
-    function __construct($id_on_suap, $codigo)
+    function __construct($id_on_suap=NULL, $codigo=NULL)
     {
         parent::__construct($id_on_suap);
         $this->codigo = $codigo;
@@ -273,7 +274,7 @@ class Curso extends Category
     public $nome;
     public $descricao;
 
-    function __construct($id_on_suap, $codigo, $nome, $descricao)
+    function __construct($id_on_suap=NULL, $codigo=NULL, $nome=NULL, $descricao=NULL)
     {
         parent::__construct($id_on_suap, $codigo);
         $this->nome = $nome;
@@ -604,6 +605,7 @@ class Usuario extends AbstractEntity
                 'timezone'=>'99',
                 'lang'=>'pt_br',
                 'confirmed'=>1,
+                'mnethostid'=>1,
             ], false);
 
             foreach ($default_user_preferences as $key=>$value) {
@@ -617,6 +619,7 @@ class Usuario extends AbstractEntity
                 'suspended'=>$this->getSuspended(),
                 'lastname'=>$lastname,
                 'firstname'=>$firstname,
+                'mnethostid'=>1,
             ], false);
             $oper = 'Atualizado';
         }
@@ -690,6 +693,10 @@ class Usuario extends AbstractEntity
 
 class Professor extends Usuario
 {
+    public function getPolo() {
+        return null;
+    }
+
     public static function ler_rest($id_diario)
     {
         return AbstractEntity::ler_rest_generico("listar_professores_ead", $id_diario, 'Professor', ['nome', 'login', 'tipo', 'email', 'email_secundario', 'status']);
@@ -720,6 +727,7 @@ class Aluno extends Usuario
     {
         return AbstractEntity::ler_rest_generico("listar_alunos_ead", $id_diario, 'Aluno',
                                                  ['nome', 'matricula', 'email', 'email_secundario', 'situacao', 'polo']);
+
     }
 
     public static function sincronizar($diario, $oque=null, $list=null)
