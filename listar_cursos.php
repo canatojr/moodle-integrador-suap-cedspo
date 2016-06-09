@@ -17,15 +17,7 @@ $periodo = isset($_GET['periodo']) ? $_GET['periodo'] : '1';
         </dl>
     </form>
     <table class="table">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Código</th>
-            <th>Nome</th>
-            <th>Descrição</th>
-            <th>Ação</th>
-        </tr>
-        </thead>
+        <thead><tr><th>ID</th><th>Código</th><th>Nome</th><th>Descrição</th><th>Ação</th></tr></thead>
         <tbody>
         <?php
         foreach (Curso::ler_rest($ano, $periodo) as $row):
