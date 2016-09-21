@@ -288,8 +288,9 @@ class Curso extends Category
 
     static function ler_rest($ano_letivo, $periodo_letivo)
     {
+	global $suap_id_campus_ead;
         $response = json_request("listar_cursos_ead",
-            ['id_campus' => SUAP_ID_CAMPUS_EAD,
+            ['id_campus' => $suap_id_campus_ead,
                 'ano_letivo' => $ano_letivo,
                 'periodo_letivo' => $periodo_letivo]);
         $result = [];
