@@ -4,9 +4,9 @@ require_once("header.php");
 function ano_periodo_render_selectbox($name) {
     global $suap_min_year, $current_year;
     $anos_periodos = [];
-    for ($ano = (int)$suap_min_year; $ano<=(int)$current_year; $ano++) {
-        $anos_periodos[]="$ano.1";
+    for ($ano = (int)$current_year; $ano>=(int)$suap_min_year; $ano--) {
         $anos_periodos[]="$ano.2";
+        $anos_periodos[]="$ano.1";
     }
     echo "<select name='{$name}' required>";
     foreach ($anos_periodos as $ano_periodo) :

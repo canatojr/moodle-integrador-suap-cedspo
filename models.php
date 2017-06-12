@@ -7,7 +7,8 @@ require_once('../group/lib.php');
 require_once("../enrol/locallib.php");
 require_once("../enrol/externallib.php");
 
-function get_or_die($param) {
+function get_or_die($param)
+{
     return isset($_GET[$param]) ? $_GET[$param] : die("Parâmetros incompletos ($param).");
 }
 
@@ -99,7 +100,7 @@ class AbstractEntity
 
     function get_record($tablename, $filters)
     {
-	$array = $this->get_records($tablename, $filters);
+	     $array = $this->get_records($tablename, $filters);
         return array_shift($array);
     }
 
@@ -158,7 +159,7 @@ class Polo extends AbstractEntity
     {
         global $polos;
         if (!$polos) {
-            $response = json_request("listar_polos_ead");
+            $response = json_request("listar_polos_ead", array());
             $result = [];
             foreach ($response as $id_on_suap => $obj) {
                 $result[] = new Polo($id_on_suap, $obj['descricao']);
@@ -246,7 +247,7 @@ class Category extends AbstractEntity
 
     function getContextLevel()
     {
-        return CONTEXT_CATEGORY;
+        return '40';
     }
 
     function getCodigo()
@@ -288,7 +289,7 @@ class Curso extends Category
 
     static function ler_rest($ano_letivo, $periodo_letivo)
     {
-	global $suap_id_campus_ead;
+        global $suap_id_campus_ead;
         $response = json_request("listar_cursos_ead",
             ['id_campus' => $suap_id_campus_ead,
                 'ano_letivo' => $ano_letivo,
@@ -327,20 +328,22 @@ class Curso extends Category
                     continue;
                 }
                 foreach (Turma::ler_rest($this->id_on_suap, $ano, $periodo) as $turma_suap) {
+                    $turma_suap->ler_moodle();
                     if ($turma_suap->ja_associado()) {
                         echo "<li class='notifysuccess'>A turma SUAP <strong>{$turma_suap->codigo}</strong> JÁ está associada à categoria <strong>{$turma_suap->name}</strong> no Moodle.<ol>";
                     } else {
-                        echo "<li class='notifyproblem'>A turma SUAP <strong>{$turma_suap->codigo}</strong> NÃO está associada a uma categoria no Moodle.<ol>";
+                        echo "<li class='notifyproblem'>A turma SUAP <strong>{$turma_suap->codigo}</strong> NÃO FOI associada a uma categoria no Moodle.<ol>";
                     }
                     $diarios = Diario::ler_rest($turma_suap);
                     if (count($diarios) == 0) {
                         echo "<li class='notifymessage'>Não existem diários para esta turma.</li>";
                     }
                     foreach ($diarios as $diario_suap):
+                        $diario_suap->ler_moodle();
                         if ($diario_suap->ja_associado()) {
-                            echo "<li class='notifysuccess'>O diário SUAP <b>{$diario_suap->getCodigo()}</b> <strong>JÁ</strong> está associado ao course {$diario_suap->name} no Moodle.";
+                            echo "<li class='notifysuccess'>O diário SUAP <b>{$diario_suap->getCodigo()}</b> JÁ está associado ao course <b>{$diario_suap->fullname}</b> no Moodle.";
                         } else {
-                            echo "<li>O <b>diário SUAP {$diario_suap->getLabel()}</b> NÃO está associado a um <b>course no Moodle</b>.";
+                            echo "<li class='notifyproblem'>O <b>diário SUAP {$diario_suap->getCodigo()}</b> NÃO está associado a um <b>course no Moodle</b>.";
                         }
                         echo "</li>";
                     endforeach;
@@ -351,12 +354,11 @@ class Curso extends Category
     }
 }
 
-
 class Turma extends Category
 {
     public $curso;
 
-    function __construct($id_on_suap, $codigo, $curso)
+    function __construct($id_on_suap, $codigo, $curso=null)
     {
         parent::__construct($id_on_suap, $codigo);
         $this->curso = $curso;
@@ -399,18 +401,23 @@ class Turma extends Category
 
     function criar()
     {
-        // Cria a categoria
-        $record = coursecat::create(array(
-            "name" => "Turma: {$this->codigo}",
-            "idnumber" => $this->codigo,
-            "description" => '',
-            "descriptionformat" => 1,
-            "parent" => $this->curso->id_moodle,
-        ));
-        $this->id_moodle = $record->id;
+        try {
+            // Cria a categoria
+            $record = coursecat::create(array(
+                "name" => "Turma: {$this->codigo}",
+                "idnumber" => $this->codigo,
+                "description" => '',
+                "descriptionformat" => 1,
+                "parent" => $this->curso->id_moodle,
+            ));
+            $this->id_moodle = $record->id;
 
-        // Associa ao SUAP
-        $this->associar();
+            // Associa ao SUAP
+            $this->associar();
+
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }
     }
 }
 
@@ -448,7 +455,7 @@ class Diario extends AbstractEntity
 
     function getContextLevel()
     {
-        return CONTEXT_COURSE;
+        return '50';
     }
 
     static function ler_rest($turma)
@@ -495,12 +502,14 @@ class Diario extends AbstractEntity
         }
 
         // Criar o diário
-        $record = create_course((object)array(
+        $dados = (object)array(
             'category'=>$periodo->id,
             'fullname'=>"[{$this->getCodigo()}] {$this->descricao}",
             'shortname'=>"[{$this->getCodigo()}]",
             'idnumber'=>"{$this->getCodigo()}",
-        ));
+        );
+
+        $record = create_course($dados);
 
         // Associa ao SUAP
         $this->id_moodle = $record->id;
@@ -671,7 +680,8 @@ class Usuario extends AbstractEntity
         }
     }
 
-    function engrupar($diario) {
+    function engrupar($diario)
+    {
         global $DB, $USER;
         $polo = $this->getPolo();
         if ($polo) {

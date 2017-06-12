@@ -7,8 +7,6 @@ define("SUAP_ID_CAMPUS_EAD", '14');
 define("NIVEL_CURSO", 2);
 define("NIVEL_TURMA", 3);
 define("NIVEL_PERIODO", 4);
-define("CONTEXT_CATEGORY", '40');
-define("CONTEXT_COURSE", '50');
 
 $enrol_roleid = ['Moderador' => 20, 'Principal' => 3, 'Aluno' => 5];
 $enrol_type = ['Moderador' => 'manual', 'Principal' => 'manual', 'Aluno' => 'manual'];

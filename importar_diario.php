@@ -1,6 +1,8 @@
 <?php
 require_once("header.php");
 
+set_time_limit(300);
+
 $id_curso = isset($_GET['id_curso']) ? $_GET['id_curso'] : null;
 $id_turma = isset($_GET['id_turma']) ? $_GET['id_turma'] : null;
 $codigo = isset($_GET['codigo']) ? $_GET['codigo'] : null;
@@ -12,9 +14,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     echo "<ol>";
     echo "<li>Inicio.</li>";
     if ($id_turma && $id_diario) {
+        dumpd($id_turma, $id_diario);
         Diario::importar($id_turma, $id_diario);
     } else if ($id_curso && $id_turma && $codigo) {
-        Turma::importar($id_curso, $id_turma, $codigo);
+        $turma = new Turma($id_turma, $codigo);
+        $turma->importar();
     } else if ($id_curso) {
       (new Curso($id_curso))->importar($ano, $periodo);
     } else {
@@ -29,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die('Informe um curso (+ ano e periodo), turma (+ curso e codigo) ou diário (+ turma).');
     }
     echo "<h3>Confirmar a importação </h3><dl>";
-    echo $id_curso ? "<dt>Curso: </dt><dd>" . (new Curso($id_curso))->ler_moodle()->name . " ($ano.$periodo)</dd>" : "";
+    echo $id_curso ? "<dt>Curso: </dt><dd>" . (new Curso($id_curso))->ler_moodle()->name . "</dd>" : "";
     echo $id_turma ? "<dt>Turma: </dt><dd>$id_turma</dd>" : "";
     echo $codigo ? "<dt>Código da turma: </dt><dd>$codigo</dd>" : "";
     echo $id_diario ? "<dt>Diário: </dt><dd>$id_diario</dd>" : "";

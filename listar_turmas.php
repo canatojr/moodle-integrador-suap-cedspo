@@ -18,7 +18,9 @@ $curso->ler_moodle();
                 echo "<a href='importar_diario.php?id_turma={$row->id_on_suap}&id_curso={$id_curso}&codigo={$row->codigo}' class='btn btn-mini btn-success'>Importar</a>";
                 echo "<a href='listar_diarios.php?id_turma={$row->id_on_suap}&codigo={$row->codigo}' class='btn btn-mini'>Diários</a>";
             } else {
-                echo "<a href='associar_turma.php?id_turma={$row->id_on_suap}&codigo={$row->codigo}' class='btn btn-mini btn-success'>Associar</a>";
+                echo "<a href='criar_turma.php?id_curso={$id_curso}&ano_letivo={$ano}&periodo_letivo={$periodo}&id_turma={$row->id_on_suap}&codigo=$codigo&codigo_turma={$row->codigo}' class='btn btn-mini btn-success'>Criar</a>";
+                echo "<a href='associar_turma.php?id_curso={$id_curso}&ano_letivo={$ano}&periodo_letivo={$periodo}&id_turma={$row->id_on_suap}&codigo={$row->codigo}' class='btn btn-mini btn-success'>Associar</a>";
+                echo "<a href='listar_diarios.php?id_turma={$row->id_on_suap}&codigo={$row->codigo}&apenasver=1' class='btn btn-mini'>Diários</a>";
             }
             echo "</td></tr>";
         endforeach
