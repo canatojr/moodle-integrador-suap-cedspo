@@ -14,8 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     echo "<ol>";
     echo "<li>Inicio.</li>";
     if ($id_turma && $id_diario) {
-        dumpd($id_turma, $id_diario);
-        Diario::importar($id_turma, $id_diario);
+        $turma = new Turma($id_turma, $codigo);
+        $diario = new Diario($id_diario, null, null, null, $turma->ler_moodle());
+        $diario->ler_moodle()->importar();
     } else if ($id_curso && $id_turma && $codigo) {
         $turma = new Turma($id_turma, $codigo);
         $turma->importar();
@@ -34,9 +35,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     echo "<h3>Confirmar a importação </h3><dl>";
     echo $id_curso ? "<dt>Curso: </dt><dd>" . (new Curso($id_curso))->ler_moodle()->name . "</dd>" : "";
-    echo $id_turma ? "<dt>Turma: </dt><dd>$id_turma</dd>" : "";
-    echo $codigo ? "<dt>Código da turma: </dt><dd>$codigo</dd>" : "";
-    echo $id_diario ? "<dt>Diário: </dt><dd>$id_diario</dd>" : "";
+    echo $id_turma ? "<dt>ID da turma no SUAP: </dt><dd>$id_turma</dd>" : "";
+    echo $codigo ? "<dt>Código da turma no SUAP: </dt><dd>$codigo</dd>" : "";
+    echo $id_diario ? "<dt>ID do diário no SUAP: </dt><dd>$id_diario</dd>" : "";
     echo "</dl>";
     ?>
     <form method='POST'>
