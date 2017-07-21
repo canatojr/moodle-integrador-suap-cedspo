@@ -1,5 +1,5 @@
 <?php
-require_once("../config.php");
+require_once("config.php");
 require_once("models.php");
 
 $id_curso = isset($_GET['id_curso']) ? $_GET['id_curso'] : die('Parâmetros incompletos (id_curso).');
