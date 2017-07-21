@@ -392,7 +392,7 @@ class Turma extends Category
         } else {
             echo " A turma já existe.";
         }
-        echo " <a href='../course/management.php?categoryid={$this->id_moodle}' class='btn btn-mini'>Acessar</a><ol>";
+        echo " <a href='../../course/management.php?categoryid={$this->id_moodle}' class='btn btn-mini'>Acessar</a><ol>";
         foreach (Diario::ler_rest($this) as $diario) {
             $diario->importar();
         };
@@ -479,8 +479,8 @@ class Diario extends AbstractEntity
             $this->criar();
             echo "foi criado com sucesso. ";
         }
-        echo "<a class='btn btn-mini' href='../course/management.php?categoryid={$this->category}&courseid={$this->id_moodle}'>Configurações do curso</a>";
-        echo "<a class='btn btn-mini' href='../course/view.php?id={$this->id_moodle}'>Acessar o curso</a>";
+        echo "<a class='btn btn-mini' href='../../course/management.php?categoryid={$this->category}&courseid={$this->id_moodle}'>Configurações do curso</a>";
+        echo "<a class='btn btn-mini' href='../../course/view.php?id={$this->id_moodle}'>Acessar o curso</a>";
 
         echo "</li><ol>";
         Professor::sincronizar($this);
@@ -637,7 +637,7 @@ class Usuario extends AbstractEntity
             $oper = 'Atualizado';
         }
 
-        echo "$oper <b><a href='../user/profile.php?id={$usuario->id}'>{$this->getUsername()} - {$this->nome}</a> ({$this->getTipo()})</b>";
+        echo "$oper <b><a href='../../user/profile.php?id={$usuario->id}'>{$this->getUsername()} - {$this->nome}</a> ({$this->getTipo()})</b>";
         $this->id_moodle = $usuario->id;
     }
 

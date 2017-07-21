@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die('Informe um curso (+ ano e periodo), turma (+ curso e codigo) ou diário (+ turma).');
     }
     echo "<li>Fim.</li>";
-    echo "<li class='btn'><a href='../admin/purgecaches.php' target='_blank'>Deseja limpar o cache agora?</a></li>";
+    echo "<li class='btn'><a href='../../admin/purgecaches.php' target='_blank'>Deseja limpar o cache agora?</a></li>";
     echo "</ol>";
     echo "</div>";
 } else {
