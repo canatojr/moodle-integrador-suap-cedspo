@@ -544,7 +544,7 @@ class Usuario extends AbstractEntity
 
     function getUsername()
     {
-        return $this->login ? $this->login : $this->matricula;
+        return strtolower($this->login ? $this->login : $this->matricula);
     }
 
     function getEmail()
@@ -608,7 +608,8 @@ class Usuario extends AbstractEntity
                 'lastname'=>$lastname,
                 'firstname'=>$firstname,
                 'username'=>$this->getUsername(),
-                'auth'=>'ldap',
+                'idnumber'=>$this->getUsername(),
+                'auth'=>'nologin',
                 'password'=>'not cached',
                 'email'=>$this->getEmail(),
                 'suspended'=>$this->getSuspended(),
@@ -626,6 +627,8 @@ class Usuario extends AbstractEntity
         } else {
             user_update_user([
                 'id'=>$usuario->id,
+                'idnumber'=>$this->getUsername(),
+                'auth'=>'nologin',
                 'suspended'=>$this->getSuspended(),
                 'lastname'=>$lastname,
                 'firstname'=>$firstname,
