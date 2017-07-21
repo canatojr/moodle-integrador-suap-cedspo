@@ -30,9 +30,9 @@ class block_suap extends block_base
         }
         $this->content = new stdClass();
         $this->content->footer = '';
+        
         $this->content->text = "<ul>";
-        $this->content->text .= "<li><a href=\"{$CFG->wwwroot}/blocks/suap/configurar_cursos.php\">Configurar cursos</a></li>";
-        $this->content->text .= "<li><a href=\"{$CFG->wwwroot}/blocks/suap/sincronizar_diarios.php\">Sincronizar diáris</a></li>";
+        $this->content->text .= "<li><a href=\"{$CFG->wwwroot}/blocks/suap/listar_cursos.php\">Listar cursos SUAP</a></li>";
         $this->content->text .= "</ul>";
 
         return $this->content;
