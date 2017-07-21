@@ -1,11 +1,11 @@
 <?php
 require_once('lib.php');
-require_once('../lib/coursecatlib.php');
-require_once('../course/lib.php');
-require_once('../user/lib.php');
-require_once('../group/lib.php');
-require_once("../enrol/locallib.php");
-require_once("../enrol/externallib.php");
+require_once($CFG->libdir . '/coursecatlib.php');
+require_once('../../course/lib.php');
+require_once('../../user/lib.php');
+require_once('../../group/lib.php');
+require_once("../../enrol/locallib.php");
+require_once("../../enrol/externallib.php");
 
 function get_or_die($param)
 {
@@ -185,7 +185,7 @@ class Campus extends AbstractEntity
 
     public static function ler_rest()
     {
-        $response = json_request("listar_campus_ead");
+        $response = json_request("listar_campus_ead", array());
         $result = [];
         foreach ($response as $id_on_suap => $obj) {
             $result[] = new Campus($id_on_suap, $obj['descricao'], $obj['sigla']);
@@ -260,12 +260,13 @@ class Category extends AbstractEntity
         global $DB;
         $has_suap_ids = array_keys($DB->get_records_sql('SELECT id FROM {course_categories} WHERE id_suap IS NOT NULL'));
         foreach (coursecat::make_categories_list('moodle/category:manage') as $key => $label):
-            if (($level > 0) && (count(split(' / ', $label)) != $level)) {
+            if (($level > 0) && (count(explode(' / ', $label)) != $level)) {
                 continue;
             }
             $jah_associado = in_array($key, $has_suap_ids) ? "disabled" : "";
             echo "<label class='as_row $jah_associado' ><input type='radio' value='$key' name='categoria' $jah_associado />$label</label>";
         endforeach;
+
     }
 }
 
@@ -291,7 +292,9 @@ class Curso extends Category
     {
         global $suap_id_campus_ead;
         $response = json_request("listar_cursos_ead",
-            ['id_campus' => $suap_id_campus_ead,
+	    //FIXME: Corrigir para recuperar valor do config.php
+            ['id_campus' => 7,
+	    //['id_campus' => $suap_id_campus_ead,
                 'ano_letivo' => $ano_letivo,
                 'periodo_letivo' => $periodo_letivo]);
         $result = [];
@@ -772,3 +775,4 @@ class Enrol extends AbstractEntity
         return $enrol;
     }
 }
+

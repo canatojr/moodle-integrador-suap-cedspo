@@ -1,5 +1,6 @@
 <?php
-require_once("../config.php");
+require_once(dirname(__FILE__) . '/../../config.php');
+require_once("config.php");
 @error_reporting(E_ALL | E_STRICT);
 @ini_set('display_errors', '1');
 $CFG->debug = (E_ALL | E_STRICT);
