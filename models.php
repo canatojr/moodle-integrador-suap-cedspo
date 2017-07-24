@@ -609,7 +609,7 @@ class Usuario extends AbstractEntity
                 'firstname'=>$firstname,
                 'username'=>$this->getUsername(),
                 'idnumber'=>$this->getUsername(),
-                'auth'=>'nologin',
+                'auth'=>'oauth2',
                 'password'=>'not cached',
                 'email'=>$this->getEmail(),
                 'suspended'=>$this->getSuspended(),
@@ -628,7 +628,7 @@ class Usuario extends AbstractEntity
             user_update_user([
                 'id'=>$usuario->id,
                 'idnumber'=>$this->getUsername(),
-                'auth'=>'nologin',
+                'auth'=>'oauth2',
                 'suspended'=>$this->getSuspended(),
                 'lastname'=>$lastname,
                 'firstname'=>$firstname,

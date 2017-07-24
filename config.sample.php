@@ -8,6 +8,6 @@ define("NIVEL_CURSO", 2);
 define("NIVEL_TURMA", 3);
 define("NIVEL_PERIODO", 4);
 
-$enrol_roleid = ['Moderador' => 4, 'Principal' => 3, 'Aluno' => 5, 'Tutor' => 3, 'Formador' => 3];
-$enrol_type = ['Moderador' => 'manual', 'Principal' => 'manual', 'Aluno' => 'manual'];
+$enrol_roleid = ['Moderador' => 4, 'Principal' => 3, 'Aluno' => 5, 'Tutor' => 4, 'Formador' => 4];
+$enrol_type = ['Moderador' => 'manual', 'Principal' => 'manual', 'Aluno' => 'manual', 'Tutor' => 'manual', 'Formador' => 'manual'];
 $default_user_preferences = ['auth_forcepasswordchange'=>'0', 'htmleditor'=>'0', 'email_bounce_count'=>'1', 'email_send_count'=>'1'];
