@@ -8,7 +8,8 @@ class block_suap extends block_base
 
     function init()
     {
-        $this->title = get_string('pluginname', 'block_suap');
+        $this->title = get_string('suap', 'block_suap');
+        $this->version = 2017072600;
     }
 
     public function applicable_formats()
