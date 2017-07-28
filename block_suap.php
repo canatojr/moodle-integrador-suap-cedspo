@@ -16,6 +16,10 @@ class block_suap extends block_base
     {
         return array('all' => true);
     }
+    
+    function has_config() {
+        return true;
+    }
 
     function get_content()
     {
@@ -29,12 +33,24 @@ class block_suap extends block_base
         if (!isloggedin() || isguestuser()) {
             return false;
         }
+        
+        // apenas administradores
+        if (!is_siteadmin()) {
+            return false;
+        }
+        
         $this->content = new stdClass();
         $this->content->footer = '';
         
         $this->content->text = "<ul>";
         $this->content->text .= "<li><a href=\"{$CFG->wwwroot}/blocks/suap/listar_cursos.php\">Listar cursos SUAP</a></li>";
         $this->content->text .= "</ul>";
+        
+        if (isset($CFG->block_suap_id_campus)) {
+            $this->content->text .= "<p>Config ID Campus: {$CFG->block_suap_id_campus}</p>";
+        } else {
+            $this->content->text .= "<p>Configure o ID do Campus.</p>";
+        }
 
         return $this->content;
     }
