@@ -8,12 +8,17 @@ class block_suap extends block_base
 
     function init()
     {
-        $this->title = get_string('pluginname', 'block_suap');
+        $this->title = get_string('suap', 'block_suap');
+        $this->version = 2017072600;
     }
 
     public function applicable_formats()
     {
         return array('all' => true);
+    }
+    
+    function has_config() {
+        return true;
     }
 
     function get_content()
@@ -28,12 +33,23 @@ class block_suap extends block_base
         if (!isloggedin() || isguestuser()) {
             return false;
         }
+        
+        // apenas administradores
+        if (!is_siteadmin()) {
+            return false;
+        }
+        
         $this->content = new stdClass();
         $this->content->footer = '';
+        
         $this->content->text = "<ul>";
-        $this->content->text .= "<li><a href={$CFG->wwwroot}/blocks/suap/configurar_cursos.php'>Configurar cursos</a></li>";
-        $this->content->text .= "<li><a href={$CFG->wwwroot}/blocks/suap/sincronizar_diarios.php'>Sincronizar diários</a></li>";
+        $this->content->text .= "<li><a href=\"{$CFG->wwwroot}/blocks/suap/listar_cursos.php\">Listar Cursos do SUAP</a></li>";
+        $this->content->text .= "<li><a href=\"{$CFG->wwwroot}/blocks/suap/listar_campus.php\">Listar Câmpus</a></li>";
+        $this->content->text .= "<li><a href=\"{$CFG->wwwroot}/blocks/suap/listar_polos.php\">Listar Polos</a></li>";
         $this->content->text .= "</ul>";
+        
+        $this->content->text .= "<p>Consulte seu ID de Câmpus e configure na <a href=\"{$CFG->wwwroot}/admin/settings.php?section=blocksettingsuap\">Administração do Bloco</a>.</p>";
+        
 
         return $this->content;
     }

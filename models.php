@@ -1,11 +1,17 @@
 <?php
 require_once('lib.php');
-require_once('../lib/coursecatlib.php');
-require_once('../course/lib.php');
-require_once('../user/lib.php');
-require_once('../group/lib.php');
-require_once("../enrol/locallib.php");
-require_once("../enrol/externallib.php");
+require_once($CFG->libdir . '/coursecatlib.php');
+require_once('../../course/lib.php');
+require_once('../../user/lib.php');
+require_once('../../group/lib.php');
+require_once("../../enrol/locallib.php");
+require_once("../../enrol/externallib.php");
+
+define("SUAP_ID_CAMPUS_EAD", $CFG->block_suap_id_campus);
+define("NIVEL_CURSO", $CFG->block_suap_nivel_curso);
+define("NIVEL_TURMA", $CFG->block_suap_nivel_turma);
+define("NIVEL_PERIODO", $CFG->block_suap_nivel_periodo);
+
 
 function get_or_die($param)
 {
@@ -185,7 +191,7 @@ class Campus extends AbstractEntity
 
     public static function ler_rest()
     {
-        $response = json_request("listar_campus_ead");
+        $response = json_request("listar_campus_ead", array());
         $result = [];
         foreach ($response as $id_on_suap => $obj) {
             $result[] = new Campus($id_on_suap, $obj['descricao'], $obj['sigla']);
@@ -260,12 +266,13 @@ class Category extends AbstractEntity
         global $DB;
         $has_suap_ids = array_keys($DB->get_records_sql('SELECT id FROM {course_categories} WHERE id_suap IS NOT NULL'));
         foreach (coursecat::make_categories_list('moodle/category:manage') as $key => $label):
-            if (($level > 0) && (count(split(' / ', $label)) != $level)) {
+            if (($level > 0) && (count(explode(' / ', $label)) != $level)) {
                 continue;
             }
             $jah_associado = in_array($key, $has_suap_ids) ? "disabled" : "";
             echo "<label class='as_row $jah_associado' ><input type='radio' value='$key' name='categoria' $jah_associado />$label</label>";
         endforeach;
+
     }
 }
 
@@ -289,9 +296,8 @@ class Curso extends Category
 
     static function ler_rest($ano_letivo, $periodo_letivo)
     {
-        global $suap_id_campus_ead;
         $response = json_request("listar_cursos_ead",
-            ['id_campus' => $suap_id_campus_ead,
+	        ['id_campus' => SUAP_ID_CAMPUS_EAD,
                 'ano_letivo' => $ano_letivo,
                 'periodo_letivo' => $periodo_letivo]);
         $result = [];
@@ -392,7 +398,7 @@ class Turma extends Category
         } else {
             echo " A turma já existe.";
         }
-        echo " <a href='../course/management.php?categoryid={$this->id_moodle}' class='btn btn-mini'>Acessar</a><ol>";
+        echo " <a href='../../course/management.php?categoryid={$this->id_moodle}' class='btn btn-mini'>Acessar</a><ol>";
         foreach (Diario::ler_rest($this) as $diario) {
             $diario->importar();
         };
@@ -479,8 +485,8 @@ class Diario extends AbstractEntity
             $this->criar();
             echo "foi criado com sucesso. ";
         }
-        echo "<a class='btn btn-mini' href='../course/management.php?categoryid={$this->category}&courseid={$this->id_moodle}'>Configurações do curso</a>";
-        echo "<a class='btn btn-mini' href='../course/view.php?id={$this->id_moodle}'>Acessar o curso</a>";
+        echo "<a class='btn btn-mini' href='../../course/management.php?categoryid={$this->category}&courseid={$this->id_moodle}'>Configurações do curso</a>";
+        echo "<a class='btn btn-mini' href='../../course/view.php?id={$this->id_moodle}'>Acessar o curso</a>";
 
         echo "</li><ol>";
         Professor::sincronizar($this);
@@ -544,7 +550,7 @@ class Usuario extends AbstractEntity
 
     function getUsername()
     {
-        return $this->login ? $this->login : $this->matricula;
+        return strtolower($this->login ? $this->login : $this->matricula);
     }
 
     function getEmail()
@@ -570,12 +576,15 @@ class Usuario extends AbstractEntity
     function getRoleId()
     {
         global $enrol_roleid;
+        //$editingteacherroleid = $DB->get_field('role', 'id', array('shortname' => 'editingteacher'));
+        $enrol_roleid = ['Moderador' => 4, 'Principal' => 3, 'Aluno' => 5, 'Tutor' => 4, 'Formador' => 3];
         return $enrol_roleid[$this->getTipo()];
     }
 
     function getEnrolType()
     {
         global $enrol_type;
+        $enrol_type = ['Moderador' => 'manual', 'Principal' => 'manual', 'Aluno' => 'manual', 'Tutor' => 'manual', 'Formador' => 'manual'];
         return $enrol_type[$this->getTipo()];
     }
 
@@ -599,6 +608,7 @@ class Usuario extends AbstractEntity
     function importar()
     {
         global $DB, $default_user_preferences;
+        $default_user_preferences = ['auth_forcepasswordchange'=>'0', 'htmleditor'=>'0', 'email_bounce_count'=>'1', 'email_send_count'=>'1'];
         $usuario = $DB->get_record("user", array("username" => $this->getUsername()));
         $nome_parts = explode(' ', $this->nome);
         $lastname = array_pop($nome_parts);
@@ -608,7 +618,8 @@ class Usuario extends AbstractEntity
                 'lastname'=>$lastname,
                 'firstname'=>$firstname,
                 'username'=>$this->getUsername(),
-                'auth'=>'ldap',
+                'idnumber'=>$this->getUsername(),
+                'auth'=>'oauth2',
                 'password'=>'not cached',
                 'email'=>$this->getEmail(),
                 'suspended'=>$this->getSuspended(),
@@ -626,6 +637,8 @@ class Usuario extends AbstractEntity
         } else {
             user_update_user([
                 'id'=>$usuario->id,
+                'idnumber'=>$this->getUsername(),
+                'auth'=>'oauth2',
                 'suspended'=>$this->getSuspended(),
                 'lastname'=>$lastname,
                 'firstname'=>$firstname,
@@ -634,7 +647,7 @@ class Usuario extends AbstractEntity
             $oper = 'Atualizado';
         }
 
-        echo "$oper <b><a href='../user/profile.php?id={$usuario->id}'>{$this->getUsername()} - {$this->nome}</a> ({$this->getTipo()})</b>";
+        echo "$oper <b><a href='../../user/profile.php?id={$usuario->id}'>{$this->getUsername()} - {$this->nome}</a> ({$this->getTipo()})</b>";
         $this->id_moodle = $usuario->id;
     }
 
@@ -772,3 +785,4 @@ class Enrol extends AbstractEntity
         return $enrol;
     }
 }
+

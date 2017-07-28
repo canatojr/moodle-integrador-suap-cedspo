@@ -1,7 +1,7 @@
 <?php
 require_once("header.php");
 
-set_time_limit(300);
+set_time_limit(600);
 
 $id_curso = isset($_GET['id_curso']) ? $_GET['id_curso'] : null;
 $id_turma = isset($_GET['id_turma']) ? $_GET['id_turma'] : null;
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die('Informe um curso (+ ano e periodo), turma (+ curso e codigo) ou diário (+ turma).');
     }
     echo "<li>Fim.</li>";
-    echo "<li class='btn'><a href='../admin/purgecaches.php' target='_blank'>Deseja limpar o cache agora?</a></li>";
+    echo "<li class='btn'><a href='../../admin/purgecaches.php' target='_blank'>Deseja limpar o cache agora?</a></li>";
     echo "</ol>";
     echo "</div>";
 } else {

@@ -1,18 +1,25 @@
 <?php
-require_once("../config.php");
+require_once(dirname(__FILE__) . '/../../config.php');
+//require_once("config.php");
 @error_reporting(E_ALL | E_STRICT);
+//@error_reporting(E_ERROR);
 @ini_set('display_errors', '1');
 $CFG->debug = (E_ALL | E_STRICT);
+//$CFG->debug = (E_ERROR);
 $CFG->debugdisplay = 1;
 
 require_once("models.php");
+
+$suap_min_year = $CFG->block_suap_min_year;
+$current_year = date("Y");
+
 require_login();
 
 $context = context_system::instance();
 
-//if (!has_capability('blocks/suap:viewpage', $context)) {
-//  print_error(get_string('notallowed', 'block_suap'));
-//}
+if (!is_siteadmin()) {
+  print_error(get_string('notallowed', 'block_suap'));
+}
 
 $PAGE->set_context($context);
 // $PAGE->set_pagelayout('standard');
