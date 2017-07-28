@@ -7,6 +7,9 @@ require_once('../../group/lib.php');
 require_once("../../enrol/locallib.php");
 require_once("../../enrol/externallib.php");
 
+define("SUAP_ID_CAMPUS_EAD", $CFG->block_suap_id_campus);
+
+
 function get_or_die($param)
 {
     return isset($_GET[$param]) ? $_GET[$param] : die("Parâmetros incompletos ($param).");

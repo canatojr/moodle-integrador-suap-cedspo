@@ -25,7 +25,14 @@
 defined('MOODLE_INTERNAL') || die;
 
 if ($ADMIN->fulltree) {
-    $settings->add(new admin_setting_configtext('block_suap_id_campus', get_string('idcampus', 'block_suap'),
-                   get_string('configidcampus', 'block_suap'), 7, PARAM_INT));
+    $settings->add(new admin_setting_configtext('block_suap_url_api',
+                    get_string('urlapi', 'block_suap'),
+                    get_string('configurlapi', 'block_suap'), 'https://suap.ifsp.edu.br/edu/api', PARAM_URL));
+    $settings->add(new admin_setting_configtext('block_suap_token',
+                    get_string('token', 'block_suap'),
+                    get_string('configtoken', 'block_suap'), 'ad89f708cdba20d73c05112a2dcadfa489e9d508', PARAM_ALPHANUMEXT));
+    $settings->add(new admin_setting_configtext('block_suap_id_campus', 
+                    get_string('idcampus', 'block_suap'),
+                    get_string('configidcampus', 'block_suap'), 7, PARAM_INT));
 }
 

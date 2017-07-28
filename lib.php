@@ -33,13 +33,13 @@ function raise_error()
 
 function json_request($service, $params)
 {
-    global $suap_prefix_url, $suap_token;
+    global $CFG;
 
-    $curl = curl_init("$suap_prefix_url/$service/");
+    $curl = curl_init("$CFG->block_suap_url_api/$service/");
     curl_setopt($curl, CURLOPT_HEADER, false);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-type: application/json",
-        "Authorization: Token $suap_token"));
+        "Authorization: Token $CFG->block_suap_token"));
     curl_setopt($curl, CURLOPT_POST, true);
 
     if (isset($params)) {
