@@ -34,5 +34,18 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext('block_suap_id_campus', 
                     get_string('idcampus', 'block_suap'),
                     get_string('configidcampus', 'block_suap'), 7, PARAM_INT));
+    $settings->add(new admin_setting_configtext('block_suap_min_year', 
+                    get_string('minyear', 'block_suap'),
+                    get_string('configminyear', 'block_suap'), 2017, PARAM_INT));
+    $settings->add(new admin_setting_configtext('block_suap_nivel_curso', 
+                    get_string('nivelcurso', 'block_suap'),
+                    get_string('confignivelcurso', 'block_suap'), 2, PARAM_INT));
+    $settings->add(new admin_setting_configtext('block_suap_nivel_turma', 
+                    get_string('nivelturma', 'block_suap'),
+                    get_string('confignivelturma', 'block_suap'), 3, PARAM_INT));
+    $settings->add(new admin_setting_configtext('block_suap_nivel_periodo', 
+                    get_string('nivelperiodo', 'block_suap'),
+                    get_string('confignivelperiodo', 'block_suap'), 4, PARAM_INT));
+
 }
 

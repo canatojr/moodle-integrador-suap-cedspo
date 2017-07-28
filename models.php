@@ -8,6 +8,9 @@ require_once("../../enrol/locallib.php");
 require_once("../../enrol/externallib.php");
 
 define("SUAP_ID_CAMPUS_EAD", $CFG->block_suap_id_campus);
+define("NIVEL_CURSO", $CFG->block_suap_nivel_curso);
+define("NIVEL_TURMA", $CFG->block_suap_nivel_turma);
+define("NIVEL_PERIODO", $CFG->block_suap_nivel_periodo);
 
 
 function get_or_die($param)

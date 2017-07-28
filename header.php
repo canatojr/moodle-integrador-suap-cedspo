@@ -7,6 +7,10 @@ $CFG->debug = (E_ALL | E_STRICT);
 $CFG->debugdisplay = 1;
 
 require_once("models.php");
+
+$suap_min_year = $CFG->block_suap_min_year;
+$current_year = date("Y");
+
 require_login();
 
 $context = context_system::instance();
