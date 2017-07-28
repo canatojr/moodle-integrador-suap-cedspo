@@ -43,14 +43,13 @@ class block_suap extends block_base
         $this->content->footer = '';
         
         $this->content->text = "<ul>";
-        $this->content->text .= "<li><a href=\"{$CFG->wwwroot}/blocks/suap/listar_cursos.php\">Listar cursos SUAP</a></li>";
+        $this->content->text .= "<li><a href=\"{$CFG->wwwroot}/blocks/suap/listar_cursos.php\">Listar Cursos do SUAP</a></li>";
+        $this->content->text .= "<li><a href=\"{$CFG->wwwroot}/blocks/suap/listar_campus.php\">Listar Câmpus</a></li>";
+        $this->content->text .= "<li><a href=\"{$CFG->wwwroot}/blocks/suap/listar_polos.php\">Listar Polos</a></li>";
         $this->content->text .= "</ul>";
         
-        if (isset($CFG->block_suap_id_campus)) {
-            $this->content->text .= "<p>Config ID Campus: {$CFG->block_suap_id_campus}</p>";
-        } else {
-            $this->content->text .= "<p>Configure o ID do Campus.</p>";
-        }
+        $this->content->text .= "<p>Consulte seu ID de Câmpus e configure na <a href=\"{$CFG->wwwroot}/admin/settings.php?section=blocksettingsuap\">Administração do Bloco</a>.</p>";
+        
 
         return $this->content;
     }

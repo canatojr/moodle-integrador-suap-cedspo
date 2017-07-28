@@ -1,7 +1,7 @@
 <?php
 require_once("header.php");
 
-set_time_limit(300);
+set_time_limit(600);
 
 $id_curso = isset($_GET['id_curso']) ? $_GET['id_curso'] : null;
 $id_turma = isset($_GET['id_turma']) ? $_GET['id_turma'] : null;

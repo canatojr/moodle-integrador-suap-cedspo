@@ -1,9 +1,11 @@
 <?php
 require_once(dirname(__FILE__) . '/../../config.php');
-require_once("config.php");
+//require_once("config.php");
 @error_reporting(E_ALL | E_STRICT);
+//@error_reporting(E_ERROR);
 @ini_set('display_errors', '1');
 $CFG->debug = (E_ALL | E_STRICT);
+//$CFG->debug = (E_ERROR);
 $CFG->debugdisplay = 1;
 
 require_once("models.php");

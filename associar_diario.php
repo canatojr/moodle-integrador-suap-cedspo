@@ -7,8 +7,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $curso = isset($_POST['curso']) ? $_POST['curso'] : die('Parâmetros incompletos (curso).');
     $curso_partes = explode(" :: ", $curso);
     $id_curso = $curso_partes[0];
-    Diario::associar($id_diario, $id_curso);
-    header("Location: listar_cursos.php");
+    $diario = new Diario($id_diario);
+    $diario->id_moodle = $id_curso;
+    $diario->associar();
+    //Diario::associar($id_diario, $id_curso);
+    redirect('listar_cursos.php', 'Diário associado.', 5);
     exit;
 }
 ?>

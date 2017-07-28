@@ -576,12 +576,15 @@ class Usuario extends AbstractEntity
     function getRoleId()
     {
         global $enrol_roleid;
+        //$editingteacherroleid = $DB->get_field('role', 'id', array('shortname' => 'editingteacher'));
+        $enrol_roleid = ['Moderador' => 4, 'Principal' => 3, 'Aluno' => 5, 'Tutor' => 4, 'Formador' => 3];
         return $enrol_roleid[$this->getTipo()];
     }
 
     function getEnrolType()
     {
         global $enrol_type;
+        $enrol_type = ['Moderador' => 'manual', 'Principal' => 'manual', 'Aluno' => 'manual', 'Tutor' => 'manual', 'Formador' => 'manual'];
         return $enrol_type[$this->getTipo()];
     }
 
@@ -605,6 +608,7 @@ class Usuario extends AbstractEntity
     function importar()
     {
         global $DB, $default_user_preferences;
+        $default_user_preferences = ['auth_forcepasswordchange'=>'0', 'htmleditor'=>'0', 'email_bounce_count'=>'1', 'email_send_count'=>'1'];
         $usuario = $DB->get_record("user", array("username" => $this->getUsername()));
         $nome_parts = explode(' ', $this->nome);
         $lastname = array_pop($nome_parts);

@@ -1,5 +1,5 @@
 <?php
-require_once("config.php");
+//require_once("config.php");
 require_once("models.php");
 
 $id_curso = isset($_GET['id_curso']) ? $_GET['id_curso'] : die('Parâmetros incompletos (id_curso).');
@@ -9,7 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $curso = new Curso($id_curso);
     $curso->id_moodle = $id_categoria;
     $curso->associar();
-    header("Location: listar_cursos.php");
+    //header("Location: listar_cursos.php");
+    redirect('listar_cursos.php', 'Curso associado.', 5);
     exit;
 }
 
