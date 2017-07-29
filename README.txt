@@ -1,37 +1,50 @@
-Estas instruções descrevem como fazer a instalação correta do Plugin "Suap-Edu-Webservice".
-Esse plugin é desenvolvido e suportado pela equipe de desenvolvimento da COTIC IFRN EaD.
+
+Estas instruções descrevem como fazer a instalação correta do Plugin "SUAP > Moodle".
+Esse plugin foi desenvolvido pela equipe de desenvolvimento da COTIC IFRN EaD.
 Plugin desenvolvido baseado no módulo Enrollment block, by Symetrix.
+A versão usada no IFSP é mantida pela DSI em colaboração com as CTIs dos câmpus.
 
 Pré-requisitos:
 ============
 Você irá precisar no mínimo de:
 
-1.  Um servidor rodando Moodle 2.0, ou superior;
+1.  Um servidor rodando Moodle 3.1, ou superior;
 
 2.  Um navegador com suporte ao Javascript;
 
+3. Um token do SUAP para sincronizar os dados (edu.pode_sincronizar_dados).
+
+
 Instalação:
 ============
-Estas instruções assumem que o Moodle já esta instalado no seu servidor (/var/www/moodle).
-
-1.  Descompacte o arquivo e copie para a pasta /var/www/moodle/blocks;
+Estas instruções assumem que o Moodle está instalado no seu servidor (/var/www/html/moodle).
 
 
-2.  Faça login no seu ambiente Moodle como usuário administrador;
-
-	O próprio Moodle irá identificar a nova instalação e apresentará a tela para a continuação do processo.
+# Descompacte a versão mais recente do plugin no repositório do gitlab: https://gitlab.ifsp.edu.br/ti/moodle-integrador-suap ;
 
 
-4.  Clique no botão para fazer a instalação;
+# Extrair o conteúdo do arquivo para o diretório: */var/www/html/moodle/blocks* e renomear o diretório do plugin para *suap*;
 
 
-5.  Clieque no botão "Continuar";
+# Faça login no seu ambiente Moodle como usuário administrador;
 
-	A partir deste ponto você já poderá adicionar o bloco do "Suap-Edu-Webservice".
+> # O próprio Moodle irá identificar a nova instalação e apresentará a tela para configurar o plugin.
+
+> # Configure a:
+> > URL do SUAP
+> > Token de Autenticação
+
+
+# Clique no botão para finalizar a instalação;
+
+> # A partir deste ponto você já poderá adicionar o bloco do "SUAP".
 
 Banco de dados:
 ============
-O banco de dados deve ser um pouco modificado, com a adição das seguintes colunas:
+
+TODO: Criar a tabela de relacionamento.
+
+O banco de dados deve ser modificado, com a adição das seguintes colunas:
 
 1. Na tabela "mdl_course_categories" adicionar coluna "id_suap"
 	Comando sql: ALTER TABLE  `mdl_course_categories` ADD `id_suap` VARCHAR(100) NULL ;
@@ -42,5 +55,9 @@ O banco de dados deve ser um pouco modificado, com a adição das seguintes colu
 3. Na tabela "mdl_course_categories" adicionar coluna "custom_css"
 	Comando sql: ALTER TABLE  `mdl_course_categories` ADD `custom_css` TEXT NULL ;
 
-Fim
+
+SUAP
 ============
+
+# Habilitar a opção *Ensino a Distância* na configuração do câmpus no SUAP. 
+Para isso, faça login no SUAP e no menu lateral vá em *ENSINO* > *Cadastros Gerais* > *Diretorias Acadêmicas*
