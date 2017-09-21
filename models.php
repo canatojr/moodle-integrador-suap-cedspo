@@ -44,6 +44,22 @@ function ler_categories()
 }
 
 
+$polos = null;
+$poloNull = new Polo(0, "");
+function getPoloById($id) {
+    global $polos, $poloNull;
+    if (!$polos) {
+        $polos = Polo::ler_rest();
+    }
+    foreach ($polos as $polo) {
+        if ($polo->id_on_suap == $id) {
+            return $polo;
+        }
+    }
+    return $poloNull;
+}
+
+
 class AbstractEntity
 {
     public $id_on_suap;
@@ -305,14 +321,24 @@ class Curso extends Category
     function importar($ano, $periodo)
     {
         $this->ler_moodle();
-        echo "<li>Importando do curso <b>{$this->name}</b> diários do período <b>$ano.$periodo</b>...</li><ol>";
+        echo "<li style='background: gray; color: white'>Curso <b>{$this->name}</b> do período <b>$ano.$periodo</b><ol>";
         foreach (Turma::ler_rest($this->id_on_suap, $ano, $periodo, $this) as $turma) {
-            echo "<li>";
             $turma->importar();
-            echo "</li>";
         };
-        echo "</ol>";
+        echo "</ol></li>";
     }
+
+    function preview($ano, $periodo)
+    {   
+        $this->ler_moodle();
+        echo "<li style='background: gray; color: white;'>Curso <b>{$this->name}</b> diários do período <b>$ano.$periodo</b>";
+        echo "<ol>";
+        foreach (Turma::ler_rest($this->id_on_suap, $ano, $periodo, $this) as $turma) {
+            $turma->preview();
+        };
+        echo "</ol></li>";
+    }   
+
 
     function auto_associar($ano_inicial, $periodo_inicial, $ano_final, $periodo_final)
     {
@@ -341,7 +367,7 @@ class Curso extends Category
                     foreach ($diarios as $diario_suap):
                         $diario_suap->ler_moodle();
                         if ($diario_suap->ja_associado()) {
-                            echo "<li class='notifysuccess'>O diário SUAP <b>{$diario_suap->getCodigo()}</b> JÁ está associado ao course <b>{$diario_suap->fullname}</b> no Moodle.";
+                            echo "<li class='notifysuccess'>O diário SUAP <b>{$diario_suap->getCodigo()}</b> JÁ está associado ao course <b>{$diario_suap->getFullname()}</b> no Moodle.";
                         } else {
                             echo "<li class='notifyproblem'>O <b>diário SUAP {$diario_suap->getCodigo()}</b> NÃO está associado a um <b>course no Moodle</b>.";
                         }
@@ -383,20 +409,20 @@ class Turma extends Category
 
     function importar()
     {
-        echo "Importando a turma <b>{$this->codigo}</b>...";
-        // Se não existe uma category para esta turma criá-la como filha do curso
         $this->ler_moodle();
+        echo "<li style='background: darkgray; color: white'>Turma ";
         if (!$this->id_moodle) {
             $this->criar();
-            echo " A turma foi criada.";
+            echo "CRIADA ";
         } else {
-            echo " A turma já existe.";
+            echo "EXISTENTE ";
         }
-        echo " <a href='../course/management.php?categoryid={$this->id_moodle}' class='btn btn-mini'>Acessar</a><ol>";
+        echo "<u><a href='../course/management.php?categoryid={$this->id_moodle}'>{$this->codigo}</a></u>";
+        echo "<ol>";
         foreach (Diario::ler_rest($this) as $diario) {
             $diario->importar();
         };
-        echo "</ol>";
+        echo "</ol></li>";
     }
 
     function criar()
@@ -418,6 +444,19 @@ class Turma extends Category
         } catch (Exception $e) {
             echo $e->getMessage();
         }
+    }
+
+    function preview() {
+        // Se não existe uma category para esta turma criá-la como filha do curso
+        $this->ler_moodle();
+        echo "<li style='background: darkgray; color: white;'>Turma ";
+        echo !$this->ja_associado() ? 'NOVA' : "<a href='../course/management.php?categoryid={$this->id_moodle}' class='btn btn-mini'>EXISTENTE</a>";
+        echo ": <b>{$this->codigo}</b> ";
+        echo "<ol>";
+        foreach (Diario::ler_rest($this) as $diario) {
+            $diario->preview();
+        }
+        echo "</ol></li>";
     }
 }
 
@@ -471,21 +510,23 @@ class Diario extends AbstractEntity
 
     function importar()
     {
-        echo "<li>Importando o diário (<b>{$this->getCodigo()}</b>)... ";
         $this->ler_moodle();
+        echo "<li style='background: silver; color: black'>Diário ";
         if ($this->ja_associado()) {
-            echo "já existia. ";
+            echo "EXISTENTE.";
         } else {
             $this->criar();
-            echo "foi criado com sucesso. ";
+            echo "CRIADO.";
         }
-        echo "<a class='btn btn-mini' href='../course/management.php?categoryid={$this->category}&courseid={$this->id_moodle}'>Configurações do curso</a>";
-        echo "<a class='btn btn-mini' href='../course/view.php?id={$this->id_moodle}'>Acessar o curso</a>";
-
-        echo "</li><ol>";
+        echo "<u><a href='../course/view.php?id={$this->id_moodle}'>{$this->getFullname()}</a></u>";
+        echo "<ol>";
         Professor::sincronizar($this);
         Aluno::sincronizar($this);
-        echo "</ol>";
+        echo "</ol></li>";
+    }
+
+    function getFullname() {
+        return "[{$this->getCodigo()}] {$this->descricao}";
     }
 
     function criar()
@@ -504,7 +545,7 @@ class Diario extends AbstractEntity
         // Criar o diário
         $dados = (object)array(
             'category'=>$periodo->id,
-            'fullname'=>"[{$this->getCodigo()}] {$this->descricao}",
+            'fullname'=>$this->getFullname(),
             'shortname'=>"[{$this->getCodigo()}]",
             'idnumber'=>"{$this->getCodigo()}",
         );
@@ -514,6 +555,38 @@ class Diario extends AbstractEntity
         // Associa ao SUAP
         $this->id_moodle = $record->id;
         $this->associar($record->id);
+    }
+
+    function preview() {
+        global $polos;
+        $periodo_numero = explode('.', $this->turma->getCodigo())[1];
+        $periodo_nome = "{$periodo_numero}º período";
+        $turma_id = $this->turma->id_moodle;
+        $periodo_params = ["parent" => $turma_id, 'name' => $periodo_nome];
+        echo "<li style='background: silver; color: black;'>";
+        $operacao = !$this->ja_associado() ? 'NOVO' : "<a class='btn btn-mini' href='http://ead.ifrn.edu.br/ava/academico/course/view.php?id={$this->id_moodle}'>EXISTENTE</a>";
+        echo "Diário $operacao: <b>[{$this->getCodigo()}] {$this->descricao}</b> - categoria: (<i>{$this->turma->name}</i> / <i>{$periodo_numero}º período</i>)";
+        echo "<br/>";
+        echo "<table class='table'>";
+        $this->preview_users('Professores', Professor::ler_rest($this->id_on_suap));
+        $this->preview_users('Alunos', Aluno::ler_rest($this->id_on_suap));
+        echo "</tbody></table>";
+        echo "</li>";
+    }
+    
+    function preview_users($title, $users) {
+        echo "<thead><tr><td colspan='7'><br/><b>$title</b></td></tr><tr><th>#</th><th>Nome</th><th>IFRN-id</th><th>Novo</th><th>Arrolado</th><th>e-Mail</th><th>Status</th></tr></thead>";
+        echo "<tbody>";
+        $i = 0;
+        foreach ($users as $user) {
+            $tipo = strtolower($user->tipo);
+            $novo = $user->ja_criado() ? 'Sim' : 'Não';
+            $arrolado = $user->ja_arrolado($this) ? 'Sim' : 'Não';
+            $i++;
+            echo "<tr><td width='1'>$i</td><td>{$user->nome}</td><td>{$user->login}{$user->matricula}</td><td>$novo</td><td>$arrolado</td><td>{$user->email_secundario}</td><td>$tipo {$user->situacao}{$user->status}</td></li>";
+        }
+        echo "</tbody>";
+
     }
 }
 
@@ -582,24 +655,37 @@ class Usuario extends AbstractEntity
     protected static function sincronizar($diario, $oque, $list)
     {
         try {
-            echo "<li>Sincronizando <b>" . count($list) .  " $oque</b> do diário <b>{$diario->fullname}</b> ...<ol>";
+            echo "<li>Sincronizando <b>" . count($list) .  " $oque</b><table class='table'>";
+            echo "<tr><th width='1'>#</th><th>Oper</th><th>Nome</th><th>Tipo</th><th>Arrolado</th><th>Atribuído</th><th>Grupo</th></tr>";
+            $i = 0;
             foreach ($list as $instance) {
-                echo "<li>";
+                $i++;
+                echo "<tr><td>$i</td>";
                 $instance->importar();
                 $instance->arrolar($diario);
                 $instance->engrupar($diario);
-                echo "</li>";
+                echo "</tr>";
             }
-            echo "</ol></li>";
+            echo "</table></li>";
         } catch (Exception $e) {
             raise_error($e);
         }
     }
 
+    function getUser(){
+        global $DB;
+        $usuario = $DB->get_record("user", array("username" => $this->getUsername()));
+        return $usuario;
+    }
+
+    function ja_criado() {
+        return !$this->getUser();
+    }
+
     function importar()
     {
-        global $DB, $default_user_preferences;
-        $usuario = $DB->get_record("user", array("username" => $this->getUsername()));
+        global $default_user_preferences;
+        $usuario = $this->getUser();
         $nome_parts = explode(' ', $this->nome);
         $lastname = array_pop($nome_parts);
         $firstname = implode(' ', $nome_parts);
@@ -634,7 +720,7 @@ class Usuario extends AbstractEntity
             $oper = 'Atualizado';
         }
 
-        echo "$oper <b><a href='../user/profile.php?id={$usuario->id}'>{$this->getUsername()} - {$this->nome}</a> ({$this->getTipo()})</b>";
+        echo "<td>$oper</td><td><a href='../user/profile.php?id={$usuario->id}'>{$this->getUsername()} - {$this->nome}</a></td><td>{$this->getTipo()}</td>";
         $this->id_moodle = $usuario->id;
     }
 
@@ -643,6 +729,11 @@ class Usuario extends AbstractEntity
         global $DB;
         $DB->insert_record('user_preferences',
                            (object)array( 'userid'=>$this->id_moodle, 'name'=>$name, 'value'=>$value, ));
+    }
+
+    function ja_arrolado($diario) {
+        global $DB;
+        return !$DB->get_record('enrol', array('enrol'=>$this->getEnrolType(), 'courseid'=>$diario->id_moodle, 'roleid'=>$this->getRoleId()));
     }
 
     function arrolar($diario) {
@@ -660,11 +751,11 @@ class Usuario extends AbstractEntity
                                               'timestart'=>time(),
                                               'modifierid'=>$USER->id,
                                               'timeend'=>0,]);
-            echo " Foi arrolado. ";
+            echo "<td>Foi arrolado</td>";
         } else {
-            echo " Já arrolado. ";
+            echo "<td>Já arrolado</td>";
         }
-
+        $diario->ler_moodle();
         $assignment = $DB->get_record('role_assignments',
             array('roleid'=>$this->getRoleId(), 'contextid'=>$diario->context->id, 'userid'=>$this->id_moodle, 'itemid'=>0));
         $diario->ja_associado();
@@ -674,9 +765,9 @@ class Usuario extends AbstractEntity
                                                'contextid'=>$diario->context->id,
                                                'userid'=>$this->id_moodle,
                                                'itemid'=>0,]);
-            echo " Foi atribuído. ";
+            echo "<td>Foi atribuído</td>";
         } else {
-            echo " Já atribuído. ";
+            echo "<td>Já atribuído</td>";
         }
     }
 
@@ -692,9 +783,9 @@ class Usuario extends AbstractEntity
                 $group = $this->get_record('groups', $data);
             }
             if ($this->get_record('groups_members', ['groupid' => $group->id, 'userid' => $this->id_moodle, ])) {
-                echo "Já estava no grupo <b>{$polo->nome}</b>.";
+                echo "<td>Já estava no grupo</td><td>{$polo->nome}</td>";
             } else {
-                echo "Adicionado ao grupo <b>{$polo->nome}</b>.";
+                echo "<td>Adicionado ao grupo</td><td>{$polo->nome}</td>";
                 groups_add_member($group->id, $this->id_moodle);
             }
         }
