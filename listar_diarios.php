@@ -5,7 +5,7 @@ $codigo = get_or_die('codigo');
 $turma = new Turma($id_turma, $codigo);
 $turma->ler_moodle();
 
-echo "<h3>Listar diário da turma '{$turma->name}'</h3>";
+echo "<h3>Listar diário da turma '{$turma->codigo}'</h3>";
 echo "<table class='table'><thead><tr><th>ID SUAP</th><th>Sigla</th><th>Código</th><th>Situacao</th><th>Descrição</th><th>Ação</th></tr></thead><tbody>";
 foreach (Diario::ler_rest($turma) as $diario) {
     echo "<tr><td>{$diario->id_on_suap}</td><td>{$diario->sigla}</td><td>{$codigo}.{$diario->sigla}</td><td>{$diario->situacao}</td><td>{$diario->descricao}</td>";

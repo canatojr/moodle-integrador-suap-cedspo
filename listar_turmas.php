@@ -7,7 +7,7 @@ $periodo = get_or_die('periodo');
 $curso = new Curso($id_curso, $codigo, $ano, $periodo);
 $curso->ler_moodle();
 ?>
-    <h3>Listar turmas do turma '<?php echo $curso->name ?>' para ofertas em '<?php echo "{$ano}.{$periodo}"; ?>'.</h3>
+    <h3>Listar turmas do curso '<?php echo $curso->name ?>' para ofertas em '<?php echo "{$ano}.{$periodo}"; ?>'.</h3>
     <table class="table">
         <thead><tr><th>ID SUAP</th><th>Código</th><th>Ações</th></tr></thead>
         <tbody>
