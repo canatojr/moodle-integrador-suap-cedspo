@@ -23,7 +23,7 @@ if ($id_turma && $id_diario && $sigla) {
     foreach (Diario::ler_rest($turma) as $diario) {
       if ($diario->id_on_suap == $id_diario) {
          $diario = $diario->ler_moodle();
-         continue;
+         break;
       }
     }
     if (!$diario) {die("Diário não encontrado.");}  
