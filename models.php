@@ -395,6 +395,10 @@ class Turma extends Category
         return $this->codigo;
     }
 
+    function getNome() {
+        return "Turma: $this->codigo";
+    }
+
     static function ler_rest($id_curso, $ano_letivo, $periodo_letivo, $curso = null)
     {
         $response = json_request("listar_turmas_ead",
@@ -565,7 +569,7 @@ class Diario extends AbstractEntity
         $periodo_params = ["parent" => $turma_id, 'name' => $periodo_nome];
         echo "<li style='background: silver; color: black;'>";
         $operacao = !$this->ja_associado() ? 'NOVO' : "<a class='btn btn-mini' href='http://ead.ifrn.edu.br/ava/academico/course/view.php?id={$this->id_moodle}'>EXISTENTE</a>";
-        echo "Diário $operacao: <b>[{$this->getCodigo()}] {$this->descricao}</b> - categoria: (<i>{$this->turma->name}</i> / <i>{$periodo_numero}º período</i>)";
+        echo "Diário $operacao: <b>[{$this->getCodigo()}] {$this->descricao}</b> - categoria: (<i>{$this->turma->getNome()}</i> / <i>{$periodo_numero}º período</i>)";
         echo "<br/>";
         echo "<table class='table'>";
         $this->preview_users('Professores', Professor::ler_rest($this->id_on_suap));
