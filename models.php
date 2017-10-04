@@ -575,13 +575,13 @@ class Diario extends AbstractEntity
     }
     
     function preview_users($title, $users) {
-        echo "<thead><tr><td colspan='7'><br/><b>$title</b></td></tr><tr><th>#</th><th>Nome</th><th>IFRN-id</th><th>Novo</th><th>Arrolado</th><th>e-Mail</th><th>Status</th></tr></thead>";
+        echo "<thead><tr><td colspan='7'><br/><b>$title</b></td></tr><tr><th>#</th><th>Nome</th><th>IFRN-id</th><th>No Moodle</th><th>No diário</th><th>e-Mail</th><th>Status</th></tr></thead>";
         echo "<tbody>";
         $i = 0;
         foreach ($users as $user) {
             $tipo = strtolower($user->tipo);
-            $novo = $user->ja_criado() ? 'Sim' : 'Não';
-            $arrolado = $user->ja_arrolado($this) ? 'Sim' : 'Não';
+            $novo = $user->ja_criado() ? 'Atualizar' : 'Cadastrar';
+            $arrolado = $user->ja_arrolado($this) ? 'Pular' : 'Matricular';
             $i++;
             echo "<tr><td width='1'>$i</td><td>{$user->nome}</td><td>{$user->login}{$user->matricula}</td><td>$novo</td><td>$arrolado</td><td>{$user->email_secundario}</td><td>$tipo {$user->situacao}{$user->status}</td></li>";
         }
@@ -649,7 +649,11 @@ class Usuario extends AbstractEntity
     function getEnrolType()
     {
         global $enrol_type;
-        return $enrol_type[$this->getTipo()];
+	if (array_key_exists($this->getTipo(), $enrol_type)) {
+            return $enrol_type[$this->getTipo()];
+        } else {
+           die("Não existe este tipo de usuário ({$this->tipo})  no integrador.");
+        }
     }
 
     protected static function sincronizar($diario, $oque, $list)
@@ -679,7 +683,7 @@ class Usuario extends AbstractEntity
     }
 
     function ja_criado() {
-        return !$this->getUser();
+        return !empty($this->getUser());
     }
 
     function importar()
