@@ -1,23 +1,12 @@
 <?php
 require_once('config.php');
 
-function dump()
-{
-    echo '<pre>';
-    foreach (func_get_args() as $key => $value) {
-        var_dump($value);
-    }
-    echo '</pre>';
+if (!function_exists('dump')) {
+    function dump() {echo '<pre>'; foreach (func_get_args() as $key => $value) {var_dump($value); } echo '</pre>'; }
 }
 
-function dumpd()
-{
-    echo '<pre>';
-    foreach (func_get_args() as $key => $value) {
-        var_dump($value);
-    }
-    echo '</pre>';
-    die();
+if (!function_exists('dumpd')) {
+    function dumpd() {echo '<pre>'; foreach ( func_get_args() as $key => $value) { var_dump($value); } echo '</pre>'; die(); } 
 }
 
 function raise_error()
