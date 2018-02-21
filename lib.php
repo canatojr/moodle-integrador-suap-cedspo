@@ -19,10 +19,9 @@ function raise_error()
     die();
 }
 
-function json_request($service, $params)
+function json_request($service, $params=null)
 {
     global $suap_prefix_url, $suap_token;
-
     $curl = curl_init("$suap_prefix_url/$service/");
     curl_setopt($curl, CURLOPT_HEADER, false);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
