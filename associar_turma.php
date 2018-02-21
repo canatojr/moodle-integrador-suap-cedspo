@@ -1,6 +1,6 @@
 <?php
 require_once("header.php");
-include('lib/coursecatlib.php');
+require_once($CFG->libdir. '/coursecatlib.php');
 $options = coursecat::make_categories_list('moodle/category:manage');
 
 $id_turma = isset($_GET['id_turma']) ? $_GET['id_turma'] : die('Parâmetros incompletos (id_turma).');
