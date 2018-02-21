@@ -26,9 +26,15 @@ $PAGE->requires->jquery_plugin('ui-css');
 // $PAGE->requires->js_init_call('M.block_suap.init');
 $PAGE->requires->css('/suap/style.css');
 echo $OUTPUT->header();
+$listar_curso_active = empty($listar_campus_active) || empty($listar_polos_active) ? 'active' : '';
 ?>
-<ul class="nav tab">
-    <li><a href="listar_cursos.php" class="btn">Listar cursos</a></li>
-    <li><a href="listar_campus.php" class="btn">Listar campus</a></li>
-    <li><a href="listar_polos.php" class="btn">Listar polos</a></li>
+<style>
+body {margin-left: 0 !important}
+#nav-drawer{display: none !important;}
+</style>
+<ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item"><a href="listar_cursos.php" class="nav-link active">Listar cursos</a></li>
+    <li class="nav-item"><a href="listar_campus.php" class="nav-link">Listar campi</a></li>
+    <li class="nav-item"><a href="listar_polos.php" class="nav-link">Listar polos</a></li>
 </ul>
+

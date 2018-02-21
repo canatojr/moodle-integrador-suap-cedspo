@@ -1,4 +1,8 @@
 <?php
+$listar_curso_active = '';
+$listar_campus_active = '';
+$listar_polos_active = 'active';
+
 require_once("header.php");
 ?>
     <h3>Listar polos</h3>

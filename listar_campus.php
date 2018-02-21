@@ -1,5 +1,9 @@
 <?php
-require_once("header.php");
+$listar_curso_active = '';
+$listar_campus_active = 'active';
+$listar_polos_active = '';
+
+require("header.php");
 ?>
     <h3>Listar campi</h3>
     <table class="table">
