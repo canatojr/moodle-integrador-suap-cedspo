@@ -321,7 +321,7 @@ class Curso extends Category
     function importar($ano, $periodo)
     {
         $this->ler_moodle();
-        echo "<li style='background: gray; color: white'>Curso <b>{$this->name}</b> do período <b>$ano.$periodo</b><ol>";
+        echo "<li>Curso <b>{$this->name}</b> do período <b>$ano.$periodo</b><ol>";
         foreach (Turma::ler_rest($this->id_on_suap, $ano, $periodo, $this) as $turma) {
             $turma->importar();
         };
@@ -331,7 +331,7 @@ class Curso extends Category
     function preview($ano, $periodo)
     {   
         $this->ler_moodle();
-        echo "<li style='background: gray; color: white;'>Curso <b>{$this->name}</b> diários do período <b>$ano.$periodo</b>";
+        echo "<li>Curso <b>{$this->name}</b> diários do período <b>$ano.$periodo</b>";
         echo "<ol>";
         foreach (Turma::ler_rest($this->id_on_suap, $ano, $periodo, $this) as $turma) {
             $turma->preview();
@@ -414,7 +414,7 @@ class Turma extends Category
     function importar()
     {
         $this->ler_moodle();
-        echo "<li style='background: darkgray; color: white'>Turma ";
+        echo "<li>Turma ";
         if (!$this->id_moodle) {
             $this->criar();
             echo "CRIADA ";
@@ -453,7 +453,7 @@ class Turma extends Category
     function preview() {
         // Se não existe uma category para esta turma criá-la como filha do curso
         $this->ler_moodle();
-        echo "<li style='background: darkgray; color: white;'>Turma ";
+        echo "<li'>Turma ";
         echo !$this->ja_associado() ? 'NOVA' : "<a href='../course/management.php?categoryid={$this->id_moodle}' class='btn btn-mini'>EXISTENTE</a>";
         echo ": <b>{$this->codigo}</b> ";
         echo "<ol>";
@@ -515,7 +515,7 @@ class Diario extends AbstractEntity
     function importar()
     {
         $this->ler_moodle();
-        echo "<li style='background: silver; color: black'>Diário ";
+        echo "<li>Diário ";
         if ($this->ja_associado()) {
             echo "EXISTENTE.";
         } else {
@@ -530,7 +530,7 @@ class Diario extends AbstractEntity
     }
 
     function getFullname() {
-        return "[{$this->getCodigo()}] {$this->descricao}";
+        return $this->descricao;
     }
 
     function criar()
@@ -550,8 +550,8 @@ class Diario extends AbstractEntity
         $dados = (object)array(
             'category'=>$periodo->id,
             'fullname'=>$this->getFullname(),
-            'shortname'=>"[{$this->getCodigo()}]",
-            'idnumber'=>"{$this->getCodigo()}",
+            'shortname'=>$this->getCodigo(),
+            'idnumber'=>$this->getCodigo(),
         );
 
         $record = create_course($dados);
@@ -567,9 +567,9 @@ class Diario extends AbstractEntity
         $periodo_nome = "{$periodo_numero}º período";
         $turma_id = $this->turma->id_moodle;
         $periodo_params = ["parent" => $turma_id, 'name' => $periodo_nome];
-        echo "<li style='background: silver; color: black;'>";
+        echo "<li'>";
         $operacao = !$this->ja_associado() ? 'NOVO' : "<a class='btn btn-mini' href='http://ead.ifrn.edu.br/ava/academico/course/view.php?id={$this->id_moodle}'>EXISTENTE</a>";
-        echo "Diário $operacao: <b>[{$this->getCodigo()}] {$this->descricao}</b> - categoria: (<i>{$this->turma->getNome()}</i> / <i>{$periodo_numero}º período</i>)";
+        echo "Diário $operacao: <b>{$this->descricao}</b> - categoria: (<i>{$this->turma->getNome()}</i> / <i>{$periodo_numero}º período</i>)";
         echo "<br/>";
         echo "<table class='table'>";
         $this->preview_users('Professores', Professor::ler_rest($this->id_on_suap));
@@ -579,6 +579,10 @@ class Diario extends AbstractEntity
     }
     
     function preview_users($title, $users) {
+        if (count($users)==0) {
+            echo "<thead><tr><td colspan='7'>Não há <b>$title</b> a importar.</td></tr></thead>";
+            return;
+        }
         echo "<thead><tr><td colspan='7'><br/><b>$title</b></td></tr><tr><th>#</th><th>Nome</th><th>IFRN-id</th><th>No Moodle</th><th>No diário</th><th>e-Mail</th><th>Status</th></tr></thead>";
         echo "<tbody>";
         $i = 0;
@@ -663,6 +667,10 @@ class Usuario extends AbstractEntity
     protected static function sincronizar($diario, $oque, $list)
     {
         try {
+            if (count($list) == 0) { 
+                echo "<li>Não há $oque a sincronizar.</li>";
+                return;
+            }
             echo "<li>Sincronizando <b>" . count($list) .  " $oque</b><table class='table'>";
             echo "<tr><th width='1'>#</th><th>Oper</th><th>Nome</th><th>Tipo</th><th>Arrolado</th><th>Atribuído</th><th>Grupo</th></tr>";
             $i = 0;
