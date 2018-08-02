@@ -1,4 +1,3 @@
-
 Estas instruções descrevem como fazer a instalação correta do Plugin "SUAP > Moodle".
 Esse plugin foi desenvolvido pela equipe de desenvolvimento da COTIC IFRN EaD.
 Plugin desenvolvido baseado no módulo Enrollment block, by Symetrix.
@@ -59,5 +58,5 @@ O banco de dados deve ser modificado, com a adição das seguintes colunas:
 SUAP
 ============
 
-# Habilitar a opção *Ensino a Distância* na configuração do câmpus no SUAP. 
-Para isso, faça login no SUAP e no menu lateral vá em *ENSINO* > *Cadastros Gerais* > *Diretorias Acadêmicas*
+# Incluir a permissão *Sincronizador Moodle* para o usuário que fará a sincronização. 
+Para isso, faça login no SUAP e no menu lateral vá em *ENSINO* > *Cadastros Gerais* > *Diretorias Acadêmicas* > Aba *Outras Atividades* > Sincronizador Moodle
