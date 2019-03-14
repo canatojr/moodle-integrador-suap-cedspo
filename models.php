@@ -434,6 +434,7 @@ class Diario extends AbstractEntity
     public $situacao;
     public $descricao;
     public $turma;
+    public $id_suap;
 
     function __construct($id_on_suap, $sigla = null, $situacao = null, $descricao = null, $turma = null)
     {
@@ -442,6 +443,7 @@ class Diario extends AbstractEntity
         $this->situacao = $situacao;
         $this->descricao = $descricao;
         $this->turma = $turma;
+        $this->id_suap = $id_on_suap;
     }
 
     function getTablename()
@@ -456,7 +458,7 @@ class Diario extends AbstractEntity
 
     function getCodigo()
     {
-        return $this->turma ? "{$this->turma->codigo}.{$this->sigla}" : NULL;
+        return $this->turma ? "{$this->turma->codigo}.{$this->sigla} {$this->id_suap}" : NULL;
     }
 
     function getContextLevel()

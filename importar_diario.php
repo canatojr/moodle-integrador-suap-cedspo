@@ -13,13 +13,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     echo "<div class='log'>";
     echo "<ol>";
     echo "<li>Inicio.</li>";
-    if ($id_turma && $id_diario) {
+    if ($id_curso && $id_turma && $codigo) {
+        $turma = new Turma($id_turma, $codigo, $id_curso);
+        $turma->importar();
+    } else if ($id_turma && $id_diario) {
         $turma = new Turma($id_turma, $codigo);
         $diario = new Diario($id_diario, null, null, null, $turma->ler_moodle());
         $diario->ler_moodle()->importar();
-    } else if ($id_curso && $id_turma && $codigo) {
-        $turma = new Turma($id_turma, $codigo);
-        $turma->importar();
     } else if ($id_curso) {
       (new Curso($id_curso))->importar($ano, $periodo);
     } else {
