@@ -501,7 +501,7 @@ class Diario extends AbstractEntity
         if(!CLI_SCRIPT){
             echo "<li>Importando o diário (<b>{$this->getCodigo()}</b>)... ";
         }else{
-            echo "Importando o diário ({$this->getCodigo()})...";
+            echo "\nImportando o diário ({$this->getCodigo()})...";
         }
         
         $this->ler_moodle();
@@ -624,7 +624,7 @@ class Usuario extends AbstractEntity
             if(!CLI_SCRIPT){
                 echo "<li>Sincronizando <b>" . count($list) .  " $oque</b> do diário <b>{$diario->fullname}</b> ...<ol>";
             }else{
-                echo "\nSincronizando " . count($list) .  " $oque do diário {$diario->fullname}...\n";
+                echo "\nSincronizando " . count($list) .  " $oque do diário {$diario->fullname}...";
             }
             
             foreach ($list as $instance) {
