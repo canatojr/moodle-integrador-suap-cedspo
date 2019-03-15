@@ -688,8 +688,12 @@ class Usuario extends AbstractEntity
             ], false);
             $oper = 'Atualizado';
         }
-
-        echo "$oper <b><a href='../../user/profile.php?id={$usuario->id}'>{$this->getUsername()} - {$this->nome}</a> ({$this->getTipo()})</b>";
+        if(!CLI_SCRIPT){
+            echo "$oper <b><a href='../../user/profile.php?id={$usuario->id}'>{$this->getUsername()} - {$this->nome}</a> ({$this->getTipo()})</b>";
+        }else{
+            echo "$oper {$this->getUsername()} - {$this->nome} ({$this->getTipo()})\n";
+        }
+        
         $this->id_moodle = $usuario->id;
     }
 
