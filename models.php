@@ -312,7 +312,7 @@ class Curso extends Category
     {
         $this->ler_moodle();
         if(CLI_SCRIPT){
-            echo "Importando do curso {$this->name} diários do período $ano.$periodo...\n";
+            echo "\nImportando do curso {$this->name} diários do período $ano.$periodo...\n";
         }else{
             echo "<li>Importando do curso <b>{$this->name}</b> diários do período <b>$ano.$periodo</b>...</li><ol>";
         }
@@ -624,7 +624,7 @@ class Usuario extends AbstractEntity
             if(!CLI_SCRIPT){
                 echo "<li>Sincronizando <b>" . count($list) .  " $oque</b> do diário <b>{$diario->fullname}</b> ...<ol>";
             }else{
-                echo "Sincronizando " . count($list) .  " $oque do diário {$diario->fullname}...\n";
+                echo "\nSincronizando " . count($list) .  " $oque do diário {$diario->fullname}...\n";
             }
             
             foreach ($list as $instance) {
@@ -691,7 +691,7 @@ class Usuario extends AbstractEntity
         if(!CLI_SCRIPT){
             echo "$oper <b><a href='../../user/profile.php?id={$usuario->id}'>{$this->getUsername()} - {$this->nome}</a> ({$this->getTipo()})</b>";
         }else{
-            echo "$oper {$this->getUsername()} - {$this->nome} ({$this->getTipo()})\n";
+            echo "\n$oper {$this->getUsername()} - {$this->nome} ({$this->getTipo()})";
         }
         
         $this->id_moodle = $usuario->id;
