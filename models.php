@@ -311,13 +311,24 @@ class Curso extends Category
     function importar($ano, $periodo)
     {
         $this->ler_moodle();
-        echo "<li>Importando do curso <b>{$this->name}</b> diários do período <b>$ano.$periodo</b>...</li><ol>";
+        if(CLI_SCRIPT){
+            echo "Importando do curso {$this->name} diários do período $ano.$periodo...\n";
+        }else{
+            echo "<li>Importando do curso <b>{$this->name}</b> diários do período <b>$ano.$periodo</b>...</li><ol>";
+        }
+        
         foreach (Turma::ler_rest($this->id_on_suap, $ano, $periodo, $this) as $turma) {
-            echo "<li>";
+            if (!CLI_SCRIPT) {
+                echo "<li>";
+            }
             $turma->importar();
-            echo "</li>";
+            if (!CLI_SCRIPT) {
+                echo "</li>";
+            }
         };
-        echo "</ol>";
+        if (!CLI_SCRIPT) {
+            echo "</ol>";
+        }
     }
 
     function auto_associar($ano_inicial, $periodo_inicial, $ano_final, $periodo_final)
@@ -389,7 +400,11 @@ class Turma extends Category
 
     function importar()
     {
-        echo "Importando a turma <b>{$this->codigo}</b>...";
+        if (!CLI_SCRIPT) {
+            echo "Importando a turma <b>{$this->codigo}</b>...";
+        }else{
+            echo "Importando a turma {$this->codigo}...";
+        }
         // Se não existe uma category para esta turma criá-la como filha do curso
         $this->ler_moodle();
         if (!$this->id_moodle) {
@@ -398,11 +413,15 @@ class Turma extends Category
         } else {
             echo " A turma já existe.";
         }
-        echo " <a href='../../course/management.php?categoryid={$this->id_moodle}' class='btn btn-mini'>Acessar</a><ol>";
+        if (!CLI_SCRIPT) {
+            echo " <a href='../../course/management.php?categoryid={$this->id_moodle}' class='btn btn-mini'>Acessar</a><ol>";
+        }
         foreach (Diario::ler_rest($this) as $diario) {
             $diario->importar();
         };
-        echo "</ol>";
+        if (!CLI_SCRIPT) {
+            echo "</ol>";
+        }
     }
 
     function criar()
@@ -479,7 +498,12 @@ class Diario extends AbstractEntity
 
     function importar()
     {
-        echo "<li>Importando o diário (<b>{$this->getCodigo()}</b>)... ";
+        if(!CLI_SCRIPT){
+            echo "<li>Importando o diário (<b>{$this->getCodigo()}</b>)... ";
+        }else{
+            echo "Importando o diário ({$this->getCodigo()})...";
+        }
+        
         $this->ler_moodle();
         if ($this->ja_associado()) {
             echo "já existia. ";
@@ -487,13 +511,17 @@ class Diario extends AbstractEntity
             $this->criar();
             echo "foi criado com sucesso. ";
         }
-        echo "<a class='btn btn-mini' href='../../course/management.php?categoryid={$this->category}&courseid={$this->id_moodle}'>Configurações do curso</a>";
-        echo "<a class='btn btn-mini' href='../../course/view.php?id={$this->id_moodle}'>Acessar o curso</a>";
+        if (!CLI_SCRIPT) {
+            echo "<a class='btn btn-mini' href='../../course/management.php?categoryid={$this->category}&courseid={$this->id_moodle}'>Configurações do curso</a>";
+            echo "<a class='btn btn-mini' href='../../course/view.php?id={$this->id_moodle}'>Acessar o curso</a>";
 
-        echo "</li><ol>";
+            echo "</li><ol>";
+        }
         Professor::sincronizar($this);
         Aluno::sincronizar($this);
-        echo "</ol>";
+        if (!CLI_SCRIPT) {
+            echo "</ol>";
+        }
     }
 
     function criar()
@@ -593,15 +621,27 @@ class Usuario extends AbstractEntity
     protected static function sincronizar($diario, $oque, $list)
     {
         try {
-            echo "<li>Sincronizando <b>" . count($list) .  " $oque</b> do diário <b>{$diario->fullname}</b> ...<ol>";
+            if(!CLI_SCRIPT){
+                echo "<li>Sincronizando <b>" . count($list) .  " $oque</b> do diário <b>{$diario->fullname}</b> ...<ol>";
+            }else{
+                echo "Sincronizando " . count($list) .  " $oque do diário {$diario->fullname}...\n";
+            }
+            
             foreach ($list as $instance) {
-                echo "<li>";
+                if(!CLI_SCRIPT){
+                    echo "<li>";
+                }
+                
                 $instance->importar();
                 $instance->arrolar($diario);
                 $instance->engrupar($diario);
-                echo "</li>";
+                if (!CLI_SCRIPT) {
+                    echo "</li>";
+                }
             }
-            echo "</ol></li>";
+            if (!CLI_SCRIPT) {
+                echo "</ol></li>";
+            }
         } catch (Exception $e) {
             raise_error($e);
         }
@@ -707,9 +747,17 @@ class Usuario extends AbstractEntity
                 $group = $this->get_record('groups', $data);
             }
             if ($this->get_record('groups_members', ['groupid' => $group->id, 'userid' => $this->id_moodle, ])) {
-                echo "Já estava no grupo <b>{$polo->nome}</b>.";
+                if (!CLI_SCRIPT) {
+                    echo "Já estava no grupo <b>{$polo->nome}</b>.";
+                }else{
+                    echo "Já estava no grupo {$polo->nome}.";
+                }
             } else {
-                echo "Adicionado ao grupo <b>{$polo->nome}</b>.";
+                if (!CLI_SCRIPT) {
+                    echo "Adicionado ao grupo <b>{$polo->nome}</b>.";
+                }else{
+                    echo "Adicionado ao grupo {$polo->nome}.";
+                }
                 groups_add_member($group->id, $this->id_moodle);
             }
         }
