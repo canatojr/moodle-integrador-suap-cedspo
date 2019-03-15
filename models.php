@@ -403,7 +403,7 @@ class Turma extends Category
         if (!CLI_SCRIPT) {
             echo "Importando a turma <b>{$this->codigo}</b>...";
         }else{
-            echo "Importando a turma {$this->codigo}...";
+            echo "\nImportando a turma {$this->codigo}...";
         }
         // Se não existe uma category para esta turma criá-la como filha do curso
         $this->ler_moodle();
