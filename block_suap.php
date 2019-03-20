@@ -1,12 +1,11 @@
 <?php
 
-require_once(dirname(__FILE__) . '/../../config.php');
-require_once($CFG->dirroot . '/blocks/suap/lib.php');
+require_once dirname(__FILE__) . '/../../config.php';
+require_once $CFG->dirroot . '/blocks/suap/lib.php';
 
 class block_suap extends block_base
 {
-
-    function init()
+    public function init()
     {
         $this->title = get_string('suap', 'block_suap');
         $this->version = 2017072600;
@@ -17,11 +16,12 @@ class block_suap extends block_base
         return array('all' => true);
     }
     
-    function has_config() {
+    public function has_config()
+    {
         return true;
     }
 
-    function get_content()
+    public function get_content()
     {
         global $CFG;
 
@@ -53,5 +53,4 @@ class block_suap extends block_base
 
         return $this->content;
     }
-
 }

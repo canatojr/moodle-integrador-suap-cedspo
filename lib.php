@@ -1,5 +1,5 @@
 <?php
-require_once(dirname(__FILE__) . '/../../config.php');
+require_once dirname(__FILE__) . '/../../config.php';
 //require_once('config.php');
 
 function dump()
@@ -38,8 +38,12 @@ function json_request($service, $params)
     $curl = curl_init("$CFG->block_suap_url_api/$service/");
     curl_setopt($curl, CURLOPT_HEADER, false);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-type: application/json",
-        "Authorization: Token $CFG->block_suap_token"));
+    curl_setopt(
+        $curl,
+        CURLOPT_HTTPHEADER,
+        array("Content-type: application/json",
+        "Authorization: Token $CFG->block_suap_token")
+    );
     curl_setopt($curl, CURLOPT_POST, true);
 
     if (isset($params)) {

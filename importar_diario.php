@@ -1,5 +1,5 @@
 <?php
-require_once("header.php");
+require_once "header.php";
 
 set_time_limit(600);
 
@@ -16,12 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($id_curso && $id_turma && $codigo) {
         $turma = new Turma($id_turma, $codigo, $id_curso);
         $turma->importar();
-    } else if ($id_turma && $id_diario) {
+    } elseif ($id_turma && $id_diario) {
         $turma = new Turma($id_turma, $codigo);
         $diario = new Diario($id_diario, null, null, null, $turma->ler_moodle());
         $diario->ler_moodle()->importar();
-    } else if ($id_curso) {
-      (new Curso($id_curso))->importar($ano, $periodo);
+    } elseif ($id_curso) {
+        (new Curso($id_curso))->importar($ano, $periodo);
     } else {
         die('Informe um curso (+ ano e periodo), turma (+ curso e codigo) ou diário (+ turma).');
     }
@@ -38,8 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     echo $id_turma ? "<dt>ID da turma no SUAP: </dt><dd>$id_turma</dd>" : "";
     echo $codigo ? "<dt>Código da turma no SUAP: </dt><dd>$codigo</dd>" : "";
     echo $id_diario ? "<dt>ID do diário no SUAP: </dt><dd>$id_diario</dd>" : "";
-    echo "</dl>";
-    ?>
+    echo "</dl>"; ?>
     <form method='POST'>
         <input type='submit' value='Importar'/>
     </form>

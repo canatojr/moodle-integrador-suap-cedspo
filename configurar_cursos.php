@@ -1,6 +1,6 @@
 <?php
-require_once("page_config.php");
-require_once("models/integracao.php");
+require_once "page_config.php";
+require_once "models/integracao.php";
 $PAGE->set_url(new moodle_url('/blocks/suap/configurar_cursos.php'));
 echo $OUTPUT->header();
 $cursos = rest_ler_cursos();
