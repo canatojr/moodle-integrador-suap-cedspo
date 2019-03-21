@@ -710,7 +710,7 @@ class Usuario extends AbstractEntity
             );
             $oper = 'Atualizado';
             $issuerdata = $DB->get_record_sql('SELECT * FROM {oauth2_issuer} WHERE name LIKE ? ', ['%SUAP%']);
-            $issuer = \core\oauth2\api::get_issuer($issuerdata['id']);
+            $issuer = \core\oauth2\api::get_issuer($issuerdata->id);
             die(print_r($issuer));
             \auth_oauth2\api::link_login($userinfo, $issuer);
         }
