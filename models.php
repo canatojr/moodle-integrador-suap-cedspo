@@ -603,6 +603,11 @@ class Usuario extends AbstractEntity
         return $this->email ? $this->email : $this->email_secundario;
     }
 
+    public function getSecundario()
+    {
+        return $this->email_secundario ? $this->email_secundario : null;
+    }
+
     public function getSuspended()
     {
         return $this->getStatus() == 'ativo' ? 0 : 1;
@@ -695,8 +700,7 @@ class Usuario extends AbstractEntity
             $usuario->id = $this->id_moodle;
             $oper = 'Criado';
         } else {
-            user_update_user(
-                [
+            $userinfo = [
                 'id'=>$usuario->id,
                 'idnumber'=>$this->getUsername(),
                 'auth'=>'oauth2',
@@ -705,14 +709,15 @@ class Usuario extends AbstractEntity
                 'lastname'=>$lastname,
                 'firstname'=>$firstname,
                 'mnethostid'=>1,
-                ],
-                false
-            );
+            ];
+            user_update_user($userinfo, false);
             $oper = 'Atualizado';
-            $issuerdata = $DB->get_record_sql('SELECT * FROM {oauth2_issuer} WHERE name LIKE ? ', ['%SUAP%']);
-            $issuer = \core\oauth2\api::get_issuer($issuerdata->id);
-            die(print_r($issuer));
-            \auth_oauth2\api::link_login($userinfo, $issuer);
+            if($this->getEmailSecundario() != null){
+                $userinfo['email'] = $this->getEmailSecundario();
+                $issuerdata = $DB->get_record_sql('SELECT * FROM {oauth2_issuer} WHERE name LIKE ? ', ['%SUAP%']);
+                $issuer = \core\oauth2\api::get_issuer($issuerdata->id);
+                \auth_oauth2\api::link_login($userinfo, $issuer);
+            }
         }
         if (!CLI_SCRIPT) {
             echo "$oper <b><a href='../../user/profile.php?id={$usuario->id}'>{$this->getUsername()} - {$this->nome}</a> ({$this->getTipo()})</b>";
