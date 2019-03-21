@@ -717,13 +717,15 @@ class Usuario extends AbstractEntity
             ];
             user_update_user($userinfo, false);
             $oper = 'Atualizado';
-            if($this->getEmailSecundario() != null){
-                $userinfo['email'] = $this->getEmailSecundario();
-                $userinfo['username'] = $this->getUsername();
-                $issuerdata = $DB->get_record_sql('SELECT * FROM {oauth2_issuer} WHERE name LIKE ? ', ['%SUAP%']);
-                $issuer = \core\oauth2\api::get_issuer($issuerdata->id);
-                die(print_r($this));
-                //\auth_oauth2\api::link_login($userinfo, $issuer);
+            if (get_class($this)!="Professor") {
+                if ($this->getEmailSecundario() != null) {
+                    $userinfo['email'] = $this->getEmailSecundario();
+                    $userinfo['username'] = $this->getUsername();
+                    $issuerdata = $DB->get_record_sql('SELECT * FROM {oauth2_issuer} WHERE name LIKE ? ', ['%SUAP%']);
+                    $issuer = \core\oauth2\api::get_issuer($issuerdata->id);
+                    die(print_r($this));
+                    \auth_oauth2\api::link_login($userinfo, $issuer);
+                }
             }
         }
         if (!CLI_SCRIPT) {
