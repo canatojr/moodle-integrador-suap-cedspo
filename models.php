@@ -670,6 +670,7 @@ class Usuario extends AbstractEntity
         $nome_parts = explode(' ', $this->nome);
         $lastname = array_pop($nome_parts);
         $firstname = implode(' ', $nome_parts);
+        print_r($this->getSuspended());
         if (!$usuario) {
             $this->id_moodle = user_create_user(
                 [
