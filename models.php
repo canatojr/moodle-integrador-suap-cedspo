@@ -733,7 +733,7 @@ class Usuario extends AbstractEntity
                     $record->confirmtoken = '';
                     $record->confirmtokenexpires = 0;
 
-                    $linkedlogin = new linked_login(0, $record);
+                    $linkedlogin = new \auth_oauth2\linked_login(0, $record);
                     $linkedlogin->create();
                     die(print_r($linkedlogin));
                     //\auth_oauth2\api::link_login($userinfo, $issuer);
