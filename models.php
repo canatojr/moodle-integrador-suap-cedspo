@@ -603,7 +603,7 @@ class Usuario extends AbstractEntity
         return $this->email ? $this->email : $this->email_secundario;
     }
 
-    public function getSecundario()
+    public function getEmailSecundario()
     {
         return $this->email_secundario ? $this->email_secundario : null;
     }
