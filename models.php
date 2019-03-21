@@ -597,10 +597,25 @@ class Usuario extends AbstractEntity
     {
         return strtolower($this->login ? $this->login : $this->matricula);
     }
+    
+    public function getMatricula()
+    {
+        return strtolower($this->matricula ? $this->matricula : null);
+    }
 
     public function getEmail()
     {
         return $this->email ? $this->email : $this->email_secundario;
+    }
+
+    public function getEmailPrimario()
+    {
+        return $this->email ? $this->email : null;
+    }
+
+    public function getEmailSecundario()
+    {
+        return $this->email_secundario ? $this->email_secundario : null;
     }
 
     public function getSuspended()
@@ -695,8 +710,7 @@ class Usuario extends AbstractEntity
             $usuario->id = $this->id_moodle;
             $oper = 'Criado';
         } else {
-            user_update_user(
-                [
+            $userinfo = [
                 'id'=>$usuario->id,
                 'idnumber'=>$this->getUsername(),
                 'auth'=>'oauth2',
@@ -705,10 +719,29 @@ class Usuario extends AbstractEntity
                 'lastname'=>$lastname,
                 'firstname'=>$firstname,
                 'mnethostid'=>1,
-                ],
-                false
-            );
+            ];
+            user_update_user($userinfo, false);
             $oper = 'Atualizado';
+
+            if ($this->getEmailSecundario() != null) {
+                $issuerdata = $DB->get_record_sql('SELECT * FROM {oauth2_issuer} WHERE name LIKE ? ', ['%SUAP%']);
+
+                $record = new stdClass();
+                $record->issuerid = $issuerdata->id;
+                $record->username = $this->getUsername();
+                $thisuser = $DB->get_record_sql('SELECT * FROM {user} WHERE username = ? ', [$this->getUsername()]);
+                $record->userid = $thisuser->id;
+                $record->email = $this->getEmailSecundario();
+                $record->confirmtoken = '';
+                $record->confirmtokenexpires = 0;
+
+                try{
+                    $linkedlogin = new \auth_oauth2\linked_login(0, $record);
+                    $linkedlogin->create();
+                }catch (Exception $e) {
+                    echo "";
+                }
+            }
         }
         if (!CLI_SCRIPT) {
             echo "$oper <b><a href='../../user/profile.php?id={$usuario->id}'>{$this->getUsername()} - {$this->nome}</a> ({$this->getTipo()})</b>";
