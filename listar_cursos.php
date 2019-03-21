@@ -1,5 +1,5 @@
 <?php
-require_once("header.php");
+require_once "header.php";
 
 $ano = isset($_GET['ano']) ? $_GET['ano'] : $current_year;
 $periodo = isset($_GET['periodo']) ? $_GET['periodo'] : '1';

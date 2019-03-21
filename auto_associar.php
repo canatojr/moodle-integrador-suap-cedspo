@@ -1,7 +1,8 @@
 <?php
-require_once("header.php");
+require_once "header.php";
 
-function ano_periodo_render_selectbox($name) {
+function ano_periodo_render_selectbox($name)
+{
     global $suap_min_year, $current_year;
     $anos_periodos = [];
     for ($ano = (int)$current_year; $ano>=(int)$suap_min_year; $ano--) {
@@ -40,8 +41,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     Caso existam <b>courses com idnumber no Moodle</b> iguais aos <b>códigos completo do diários no SUAP</b> estes courses serão associados a um diários.
     Fora isso, nada mais será alterado, criado ou excluído.<p>";
     echo "<dt>Curso: </dt><dd>" . (new Curso($id_curso))->ler_moodle()->name . "</dd>";
-    echo "<dt>Ano/Período inicial: </dt><dd>"; ano_periodo_render_selectbox('ano_periodo_inicial'); echo "</dd>";
-    echo "<dt>Ano/Período final: </dt><dd>"; ano_periodo_render_selectbox('ano_periodo_final'); echo "</dd>";
+    echo "<dt>Ano/Período inicial: </dt><dd>";
+    ano_periodo_render_selectbox('ano_periodo_inicial');
+    echo "</dd>";
+    echo "<dt>Ano/Período final: </dt><dd>";
+    ano_periodo_render_selectbox('ano_periodo_final');
+    echo "</dd>";
     echo "<input type='submit' value='Associar'/>";
     echo "</dl></form>";
 }

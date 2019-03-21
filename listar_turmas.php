@@ -1,5 +1,5 @@
 <?php
-require_once("header.php");
+require_once "header.php";
 $id_curso = get_or_die('id_curso');
 $codigo = get_or_die('codigo');
 $ano = get_or_die('ano');

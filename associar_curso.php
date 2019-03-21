@@ -1,6 +1,6 @@
 <?php
 //require_once("config.php");
-require_once("models.php");
+require_once "models.php";
 
 $id_curso = isset($_GET['id_curso']) ? $_GET['id_curso'] : die('Parâmetros incompletos (id_curso).');
 
@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     exit;
 }
 
-require_once("header.php");
+require_once "header.php";
 ?>
     <h3>Associar curso '<?php echo $id_curso; ?>' a uma categoria</h3>
     <form method='POST'>
