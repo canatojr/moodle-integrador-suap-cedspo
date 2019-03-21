@@ -737,11 +737,8 @@ class Usuario extends AbstractEntity
                         $linkedlogin = new \auth_oauth2\linked_login(0, $record);
                         $linkedlogin->create();
                     }catch (Exception $e) {
-                        echo "Já linkado";
+                        echo "";
                     }
-                    
-                    die(print_r($linkedlogin));
-                    //\auth_oauth2\api::link_login($userinfo, $issuer);
                 }
             }
         }
