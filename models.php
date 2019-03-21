@@ -717,27 +717,33 @@ class Usuario extends AbstractEntity
             ];
             user_update_user($userinfo, false);
             $oper = 'Atualizado';
-            if (get_class($this)!="Professor") {
-                if ($this->getEmailSecundario() != null) {
-                    $userinfo['email'] = $this->getEmailSecundario();
-                    $userinfo['username'] = $this->getUsername();
-                    $issuerdata = $DB->get_record_sql('SELECT * FROM {oauth2_issuer} WHERE name LIKE ? ', ['%SUAP%']);
 
-                    $record = new stdClass();
-                    $record->issuerid = $issuerdata->id;
-                    $record->username = $userinfo['username'];
-                    $thisuser = $DB->get_record_sql('SELECT * FROM {user} WHERE username = ? ', [$userinfo['username']]);
-                    $record->userid = $thisuser->id;
-                    $record->email = $userinfo['email'];
-                    $record->confirmtoken = '';
-                    $record->confirmtokenexpires = 0;
+            if ($this->getEmailSecundario() != null) {
+                $issuerdata = $DB->get_record_sql('SELECT * FROM {oauth2_issuer} WHERE name LIKE ? ', ['%SUAP%']);
 
-                    try{
-                        $linkedlogin = new \auth_oauth2\linked_login(0, $record);
-                        $linkedlogin->create();
-                    }catch (Exception $e) {
-                        echo "";
-                    }
+                $record = new stdClass();
+                $record->issuerid = $issuerdata->id;
+                $record->username = $this->getUsername();
+                $thisuser = $DB->get_record_sql('SELECT * FROM {user} WHERE username = ? ', [$this->getUsername()]);
+                $record->userid = $thisuser->id;
+                $record->email = $this->getEmailSecundario();
+                $record->confirmtoken = '';
+                $record->confirmtokenexpires = 0;
+                $record2 = $record;
+                $record->email = $this->getEmail();
+
+                try{
+                    $linkedlogin = new \auth_oauth2\linked_login(0, $record);
+                    $linkedlogin->create();
+                }catch (Exception $e) {
+                    echo "";
+                }
+
+                try{
+                    $linkedlogin2 = new \auth_oauth2\linked_login(0, $record2);
+                    $linkedlogin2->create();
+                }catch (Exception $e) {
+                    echo "";
                 }
             }
         }
