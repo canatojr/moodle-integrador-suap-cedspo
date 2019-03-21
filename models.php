@@ -597,6 +597,11 @@ class Usuario extends AbstractEntity
     {
         return strtolower($this->login ? $this->login : $this->matricula);
     }
+    
+    public function getMatricula()
+    {
+        return strtolower($this->matricula ? $this->matricula : null);
+    }
 
     public function getEmail()
     {
@@ -714,7 +719,7 @@ class Usuario extends AbstractEntity
             $oper = 'Atualizado';
             if($this->getEmailSecundario() != null){
                 $userinfo['email'] = $this->getEmailSecundario();
-                $userinfo['username'] = $this->getUsername();
+                $userinfo['username'] = $this->getMatricula();
                 die(print_r($userinfo));
                 $issuerdata = $DB->get_record_sql('SELECT * FROM {oauth2_issuer} WHERE name LIKE ? ', ['%SUAP%']);
                 $issuer = \core\oauth2\api::get_issuer($issuerdata->id);
