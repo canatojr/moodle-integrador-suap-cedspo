@@ -734,8 +734,6 @@ class Usuario extends AbstractEntity
                 $record->email = $this->getEmailSecundario();
                 $record->confirmtoken = '';
                 $record->confirmtokenexpires = 0;
-                $record2 = $record;
-                $record2->email = $this->getEmailPrimario();
 
                 try{
                     $linkedlogin = new \auth_oauth2\linked_login(0, $record);
@@ -743,13 +741,6 @@ class Usuario extends AbstractEntity
                 }catch (Exception $e) {
                     echo "";
                 }
-
-                //try{
-                    $linkedlogin2 = new \auth_oauth2\linked_login(0, $record2);
-                    $linkedlogin2->create();
-                //}catch (Exception $e) {
-                    //echo "";
-                //}
             }
         }
         if (!CLI_SCRIPT) {
