@@ -722,8 +722,21 @@ class Usuario extends AbstractEntity
                     $userinfo['email'] = $this->getEmailSecundario();
                     $userinfo['username'] = $this->getUsername();
                     $issuerdata = $DB->get_record_sql('SELECT * FROM {oauth2_issuer} WHERE name LIKE ? ', ['%SUAP%']);
-                    $issuer = \core\oauth2\api::get_issuer($issuerdata->id);
-                    \auth_oauth2\api::link_login($userinfo, $issuer);
+                    
+                    
+                    $record = new stdClass();
+                    $record->issuerid = $issuerdata->id;
+                    $record->username = $userinfo['username'];
+                    $thisuser = $DB->get_record_sql('SELECT * FROM {user} WHERE username = ? ', [$userinfo['username']]);
+                    $record->userid = $thisuser->id;
+                    $record->email = $userinfo['email'];
+                    $record->confirmtoken = '';
+                    $record->confirmtokenexpires = 0;
+
+                    $linkedlogin = new linked_login(0, $record);
+                    $linkedlogin->create();
+                    die(print_r($linkedlogin));
+                    //\auth_oauth2\api::link_login($userinfo, $issuer);
                 }
             }
         }
