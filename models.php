@@ -709,6 +709,9 @@ class Usuario extends AbstractEntity
                 false
             );
             $oper = 'Atualizado';
+            $issuerdata = $DB->get_record_sql('SELECT * FROM {oauth2_issuer} WHERE name LIKE ? ', ['%SUAP%']);
+            $issuer = \core\oauth2\api::get_issuer($issuerdata['id']);
+            \auth_oauth2\api::link_login($userinfo, $issuer);
         }
         if (!CLI_SCRIPT) {
             echo "$oper <b><a href='../../user/profile.php?id={$usuario->id}'>{$this->getUsername()} - {$this->nome}</a> ({$this->getTipo()})</b>";
