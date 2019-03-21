@@ -722,8 +722,7 @@ class Usuario extends AbstractEntity
                     $userinfo['email'] = $this->getEmailSecundario();
                     $userinfo['username'] = $this->getUsername();
                     $issuerdata = $DB->get_record_sql('SELECT * FROM {oauth2_issuer} WHERE name LIKE ? ', ['%SUAP%']);
-                    
-                    
+
                     $record = new stdClass();
                     $record->issuerid = $issuerdata->id;
                     $record->username = $userinfo['username'];
