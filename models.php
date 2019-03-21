@@ -730,7 +730,7 @@ class Usuario extends AbstractEntity
                 $record->confirmtoken = '';
                 $record->confirmtokenexpires = 0;
                 $record2 = $record;
-                $record->email = $this->getEmail();
+                $record2->email = $this->getEmail();
 
                 try{
                     $linkedlogin = new \auth_oauth2\linked_login(0, $record);
