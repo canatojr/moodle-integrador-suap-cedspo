@@ -608,6 +608,11 @@ class Usuario extends AbstractEntity
         return $this->email ? $this->email : $this->email_secundario;
     }
 
+    public function getEmailPrimario()
+    {
+        return $this->email ? $this->email : null;
+    }
+
     public function getEmailSecundario()
     {
         return $this->email_secundario ? $this->email_secundario : null;
@@ -730,7 +735,7 @@ class Usuario extends AbstractEntity
                 $record->confirmtoken = '';
                 $record->confirmtokenexpires = 0;
                 $record2 = $record;
-                $record2->email = $this->getEmail();
+                $record2->email = $this->getEmailPrimario();
 
                 try{
                     $linkedlogin = new \auth_oauth2\linked_login(0, $record);
@@ -739,12 +744,12 @@ class Usuario extends AbstractEntity
                     echo "";
                 }
 
-                try{
+                //try{
                     $linkedlogin2 = new \auth_oauth2\linked_login(0, $record2);
                     $linkedlogin2->create();
-                }catch (Exception $e) {
-                    echo "";
-                }
+                //}catch (Exception $e) {
+                    //echo "";
+                //}
             }
         }
         if (!CLI_SCRIPT) {
