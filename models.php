@@ -720,7 +720,6 @@ class Usuario extends AbstractEntity
             if($this->getEmailSecundario() != null){
                 $userinfo['email'] = $this->getEmailSecundario();
                 $userinfo['username'] = $this->getUsername();
-                die(print_r($userinfo));
                 $issuerdata = $DB->get_record_sql('SELECT * FROM {oauth2_issuer} WHERE name LIKE ? ', ['%SUAP%']);
                 $issuer = \core\oauth2\api::get_issuer($issuerdata->id);
                 \auth_oauth2\api::link_login($userinfo, $issuer);
