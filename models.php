@@ -685,6 +685,7 @@ class Usuario extends AbstractEntity
         $nome_parts = explode(' ', $this->nome);
         $lastname = array_pop($nome_parts);
         $firstname = implode(' ', $nome_parts);
+        $issuerdata = $DB->get_record_sql('SELECT * FROM {oauth2_issuer} WHERE name LIKE ? ', ['%SUAP%']);
         if (!$usuario) {
             $this->id_moodle = user_create_user(
                 [
@@ -692,8 +693,8 @@ class Usuario extends AbstractEntity
                 'firstname'=>$firstname,
                 'username'=>$this->getUsername(),
                 'idnumber'=>$this->getUsername(),
-                'auth'=>'oauth2',
-                'password'=>'not cached',
+                'auth'=>'manual',
+                'password'=>$this->generate_password(),
                 'email'=>$this->getEmail(),
                 'suspended'=>$this->getSuspended(),
                 'timezone'=>'99',
@@ -708,12 +709,28 @@ class Usuario extends AbstractEntity
                 $this->criar_user_preferences($key, $value);
             }
             $usuario->id = $this->id_moodle;
+
+            //Cria linked_login
+            $record = new stdClass();
+            $record->issuerid = $issuerdata->id;
+            $record->username = $this->getUsername();
+            $record->userid = $usuario->id;
+            $record->email = $this->getEmail();
+            $record->confirmtoken = '';
+            $record->confirmtokenexpires = 0;
+            try{
+                $linkedlogin = new \auth_oauth2\linked_login(0, $record);
+                $linkedlogin->create();
+            }catch (Exception $e) {
+                echo "";
+            }
+
             $oper = 'Criado';
         } else {
             $userinfo = [
                 'id'=>$usuario->id,
                 'idnumber'=>$this->getUsername(),
-                'auth'=>'oauth2',
+                'auth'=>'manual',
                 'suspended'=>$this->getSuspended(),
                 'email'=>$this->getEmail(),
                 'lastname'=>$lastname,
@@ -721,28 +738,16 @@ class Usuario extends AbstractEntity
                 'mnethostid'=>1,
             ];
             user_update_user($userinfo, false);
+            
+            //Atualiza linked_login
+            //$DB->get_record_sql('UPDATE {auth_oauth2_linked_login} SET email = ? WHERE issuerid = ? AND userid = ? AND username = ? ', [$this->getEmail(),$issuerdata->id,$usuario->id,$this->getUsername()]);
+            $linked = \auth_oauth2\linked_login::get_record(['issuerid' => $issuerdata->id, 'userid' => $usuario->id,'username'=>$this->getUsername()]);
+            $linked->email = $this->getEmail();
+            $DB->update_record('auth_oauth2_linked_login', $linked)
             $oper = 'Atualizado';
-
-            if ($this->getEmailSecundario() != null) {
-                $issuerdata = $DB->get_record_sql('SELECT * FROM {oauth2_issuer} WHERE name LIKE ? ', ['%SUAP%']);
-
-                $record = new stdClass();
-                $record->issuerid = $issuerdata->id;
-                $record->username = $this->getUsername();
-                $thisuser = $DB->get_record_sql('SELECT * FROM {user} WHERE username = ? ', [$this->getUsername()]);
-                $record->userid = $thisuser->id;
-                $record->email = $this->getEmailSecundario();
-                $record->confirmtoken = '';
-                $record->confirmtokenexpires = 0;
-
-                try{
-                    $linkedlogin = new \auth_oauth2\linked_login(0, $record);
-                    $linkedlogin->create();
-                }catch (Exception $e) {
-                    echo "";
-                }
-            }
         }
+
+
         if (!CLI_SCRIPT) {
             echo "$oper <b><a href='../../user/profile.php?id={$usuario->id}'>{$this->getUsername()} - {$this->nome}</a> ({$this->getTipo()})</b>";
         } else {
@@ -829,6 +834,18 @@ class Usuario extends AbstractEntity
                 groups_add_member($group->id, $this->id_moodle);
             }
         }
+    }
+    
+    private function generate_password($length = 20){
+        $chars =  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`-=~!@#$%^&*()_+,./<>?;:[]{}\|';
+
+        $str = '';
+        $max = strlen($chars) - 1;
+
+        for ($i=0; $i < $length; $i++)
+            $str .= $chars[random_int(0, $max)];
+        
+        return $str;
     }
 }
 
