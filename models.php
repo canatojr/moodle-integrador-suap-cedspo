@@ -709,7 +709,21 @@ class Usuario extends AbstractEntity
                 $this->criar_user_preferences($key, $value);
             }
             $usuario->id = $this->id_moodle;
-
+            $oper = 'Criado';
+        } else {
+            $userinfo = [
+                'id'=>$usuario->id,
+                'idnumber'=>$this->getUsername(),
+                'auth'=>'manual',
+                'suspended'=>$this->getSuspended(),
+                'email'=>$this->getEmail(),
+                'lastname'=>$lastname,
+                'firstname'=>$firstname,
+                'mnethostid'=>1,
+            ];
+            user_update_user($userinfo, false);
+            $oper = 'Atualizado';
+        }
             //Cria linked_login
             $record = new stdClass();
             $record->issuerid = $issuerdata->id;
@@ -725,27 +739,11 @@ class Usuario extends AbstractEntity
                 echo "";
             }
 
-            $oper = 'Criado';
-        } else {
-            $userinfo = [
-                'id'=>$usuario->id,
-                'idnumber'=>$this->getUsername(),
-                'auth'=>'manual',
-                'suspended'=>$this->getSuspended(),
-                'email'=>$this->getEmail(),
-                'lastname'=>$lastname,
-                'firstname'=>$firstname,
-                'mnethostid'=>1,
-            ];
-            user_update_user($userinfo, false);
-            
             //Atualiza linked_login
-            //$DB->get_record_sql('UPDATE {auth_oauth2_linked_login} SET email = ? WHERE issuerid = ? AND userid = ? AND username = ? ', [$this->getEmail(),$issuerdata->id,$usuario->id,$this->getUsername()]);
-            $linked = \auth_oauth2\linked_login::get_record(['issuerid' => $issuerdata->id, 'userid' => $usuario->id,'username'=>$this->getUsername()]);
-            $linked->email = $this->getEmail();
-            $DB->update_record('auth_oauth2_linked_login', $linked)
-            $oper = 'Atualizado';
-        }
+            $DB->get_record_sql('UPDATE {auth_oauth2_linked_login} SET email = ? WHERE issuerid = ? AND userid = ? AND username = ? ', [$this->getEmail(),$issuerdata->id,$usuario->id,$this->getUsername()]);
+            //$linked = \auth_oauth2\linked_login::get_record(['issuerid' => $issuerdata->id, 'userid' => $usuario->id,'username'=>$this->getUsername()]);
+            //$linked->email = $this->getEmail();
+            //$DB->update_record('auth_oauth2_linked_login', $linked);
 
 
         if (!CLI_SCRIPT) {
