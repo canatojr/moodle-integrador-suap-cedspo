@@ -724,26 +724,26 @@ class Usuario extends AbstractEntity
             user_update_user($userinfo, false);
             $oper = 'Atualizado';
         }
-            //Cria linked_login
-            $record = new stdClass();
-            $record->issuerid = $issuerdata->id;
-            $record->username = $this->getUsername();
-            $record->userid = $usuario->id;
-            $record->email = $this->getEmail();
-            $record->confirmtoken = '';
-            $record->confirmtokenexpires = 0;
-        try{
+        //Cria linked_login
+        $record = new stdClass();
+        $record->issuerid = $issuerdata->id;
+        $record->username = $this->getUsername();
+        $record->userid = $usuario->id;
+        $record->email = $this->getEmail();
+        $record->confirmtoken = '';
+        $record->confirmtokenexpires = 0;
+        try {
             $linkedlogin = new \auth_oauth2\linked_login(0, $record);
             $linkedlogin->create();
-        }catch (Exception $e) {
+        } catch (Exception $e) {
             echo "";
         }
 
-            //Atualiza linked_login
-            $DB->get_record_sql('UPDATE {auth_oauth2_linked_login} SET email = ? WHERE issuerid = ? AND userid = ? AND username = ? ', [$this->getEmail(),$issuerdata->id,$usuario->id,$this->getUsername()]);
-            //$linked = \auth_oauth2\linked_login::get_record(['issuerid' => $issuerdata->id, 'userid' => $usuario->id,'username'=>$this->getUsername()]);
-            //$linked->email = $this->getEmail();
-            //$DB->update_record('auth_oauth2_linked_login', $linked);
+        //Atualiza linked_login
+        $DB->get_record_sql('UPDATE {auth_oauth2_linked_login} SET email = ? WHERE issuerid = ? AND userid = ? AND username = ? ', [$this->getEmail(),$issuerdata->id,$usuario->id,$this->getUsername()]);
+        //$linked = \auth_oauth2\linked_login::get_record(['issuerid' => $issuerdata->id, 'userid' => $usuario->id,'username'=>$this->getUsername()]);
+        //$linked->email = $this->getEmail();
+        //$DB->update_record('auth_oauth2_linked_login', $linked);
 
 
         if (!CLI_SCRIPT) {
