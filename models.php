@@ -280,8 +280,8 @@ class Category extends AbstractEntity
             if (($level > 0) && (count(explode(' / ', $label)) != $level)) {
                 continue;
             }
-        $jah_associado = in_array($key, $has_suap_ids) ? "disabled" : "";
-        echo "<label class='as_row $jah_associado' ><input type='radio' value='$key' name='categoria' $jah_associado />$label</label>";
+            $jah_associado = in_array($key, $has_suap_ids) ? "disabled" : "";
+            echo "<label class='as_row $jah_associado' ><input type='radio' value='$key' name='categoria' $jah_associado />$label</label>";
         endforeach;
     }
 }
@@ -369,12 +369,12 @@ class Curso extends Category
                     }
                     foreach ($diarios as $diario_suap):
                         $diario_suap->ler_moodle();
-                    if ($diario_suap->ja_associado()) {
-                        echo "<li class='notifysuccess'>O diário SUAP <b>{$diario_suap->getCodigo()}</b> JÁ está associado ao course <b>{$diario_suap->fullname}</b> no Moodle.";
-                    } else {
-                        echo "<li class='notifyproblem'>O <b>diário SUAP {$diario_suap->getCodigo()}</b> NÃO está associado a um <b>course no Moodle</b>.";
-                    }
-                    echo "</li>";
+                        if ($diario_suap->ja_associado()) {
+                            echo "<li class='notifysuccess'>O diário SUAP <b>{$diario_suap->getCodigo()}</b> JÁ está associado ao course <b>{$diario_suap->fullname}</b> no Moodle.";
+                        } else {
+                            echo "<li class='notifyproblem'>O <b>diário SUAP {$diario_suap->getCodigo()}</b> NÃO está associado a um <b>course no Moodle</b>.";
+                        }
+                        echo "</li>";
                     endforeach;
                     echo "</ol></li>";
                 };
@@ -732,12 +732,12 @@ class Usuario extends AbstractEntity
             $record->email = $this->getEmail();
             $record->confirmtoken = '';
             $record->confirmtokenexpires = 0;
-            try{
-                $linkedlogin = new \auth_oauth2\linked_login(0, $record);
-                $linkedlogin->create();
-            }catch (Exception $e) {
-                echo "";
-            }
+        try{
+            $linkedlogin = new \auth_oauth2\linked_login(0, $record);
+            $linkedlogin->create();
+        }catch (Exception $e) {
+            echo "";
+        }
 
             //Atualiza linked_login
             $DB->get_record_sql('UPDATE {auth_oauth2_linked_login} SET email = ? WHERE issuerid = ? AND userid = ? AND username = ? ', [$this->getEmail(),$issuerdata->id,$usuario->id,$this->getUsername()]);
@@ -834,14 +834,16 @@ class Usuario extends AbstractEntity
         }
     }
     
-    private function generate_password($length = 20){
+    private function generate_password($length = 20)
+    {
         $chars =  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`-=~!@#$%^&*()_+,./<>?;:[]{}\|';
 
         $str = '';
         $max = strlen($chars) - 1;
 
-        for ($i=0; $i < $length; $i++)
-            $str .= $chars[random_int(0, $max)];
+        for ($i=0; $i < $length; $i++) {
+            $str .= $chars[rand(0, $max)];
+        }
         
         return $str;
     }
