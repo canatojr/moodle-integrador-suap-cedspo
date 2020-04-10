@@ -1,0 +1,25 @@
+   
+release:
+  stage: release
+  only:
+    - master-ifsp
+  image: alpine:3.11
+  script:
+    - apk --no-cache add zip unzip
+    - mkdir /release
+    - mv /builds/ti/moodle-integrador-suap /builds/ti/suap/
+    - zip -r /release/block_suap_ifsp.zip /builds/ti/suap/*
+  artifacts:
+    paths:
+      - /release
+
+pages:
+  stage: deploy
+  only:
+    - release
+  script:
+    - mv release public/
+  artifacts:
+    paths:
+      - public
+    expire_in: 5 yrs
