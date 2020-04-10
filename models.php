@@ -1,11 +1,11 @@
 <?php
-require_once 'lib.php';
+require_once $CFG->dirroot . '/block/suap/lib.php';
 require_once $CFG->libdir . '/coursecatlib.php';
-require_once '../../course/lib.php';
-require_once '../../user/lib.php';
-require_once '../../group/lib.php';
-require_once "../../enrol/locallib.php";
-require_once "../../enrol/externallib.php";
+require_once $CFG->dirroot . '/course/lib.php';
+require_once $CFG->dirroot . '/user/lib.php';
+require_once $CFG->dirroot . '/group/lib.php';
+require_once $CFG->dirroot . "/enrol/locallib.php";
+require_once $CFG->dirroot . "/enrol/externallib.php";
 
 define("SUAP_ID_CAMPUS_EAD", $CFG->block_suap_id_campus);
 define("NIVEL_CURSO", $CFG->block_suap_nivel_curso);
