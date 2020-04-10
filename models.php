@@ -1,6 +1,5 @@
 <?php
-namespace block_suap\models;
-require_once $CFG->dirroot . '/block/suap/lib.php';
+require_once $CFG->dirroot . '/blocks/suap/lib.php';
 require_once $CFG->libdir . '/coursecatlib.php';
 require_once $CFG->dirroot . '/course/lib.php';
 require_once $CFG->dirroot . '/user/lib.php';
@@ -12,8 +11,6 @@ define("SUAP_ID_CAMPUS_EAD", $CFG->block_suap_id_campus);
 define("NIVEL_CURSO", $CFG->block_suap_nivel_curso);
 define("NIVEL_TURMA", $CFG->block_suap_nivel_turma);
 define("NIVEL_PERIODO", $CFG->block_suap_nivel_periodo);
-
-echo '"', __NAMESPACE__, '"';
 
 function get_or_die($param)
 {
@@ -297,8 +294,8 @@ class Curso extends Category
     public function __construct($id_on_suap=null, $codigo=null, $nome=null, $descricao=null)
     {
         parent::__construct($id_on_suap, $codigo);
-        $this->nome = $nome;
-        $this->descricao = $descricao;
+        $this->nome = $nome . '"'.__NAMESPACE__.'"';
+        $this->descricao = $descricao . '"'.__NAMESPACE__.'"';
     }
 
     public function getLabel()
