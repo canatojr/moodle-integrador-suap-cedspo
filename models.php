@@ -294,8 +294,8 @@ class Curso extends Category
     public function __construct($id_on_suap=null, $codigo=null, $nome=null, $descricao=null)
     {
         parent::__construct($id_on_suap, $codigo);
-        $this->nome = $nome . '"'.__NAMESPACE__.'"';
-        $this->descricao = $descricao . '"'.__NAMESPACE__.'"';
+        $this->nome = $nome;
+        $this->descricao = $descricao;
     }
 
     public function getLabel()
