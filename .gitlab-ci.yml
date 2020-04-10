@@ -18,6 +18,8 @@ release:
 
 pages:
   stage: deploy
+  only:
+    - master-ifsp
   artifacts:
     paths:
       - public
