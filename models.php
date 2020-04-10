@@ -1,4 +1,5 @@
 <?php
+namespace block_suap;
 require_once $CFG->dirroot . '/block/suap/lib.php';
 require_once $CFG->libdir . '/coursecatlib.php';
 require_once $CFG->dirroot . '/course/lib.php';
@@ -741,14 +742,14 @@ class Usuario extends AbstractEntity
 
             //Atualiza linked_login
             $ulinked_login = $DB->get_record('auth_oauth2_linked_login', ['issuerid'=>$issuerdata->id,'userid'=>$usuario->id,'username'=>$this->getUsername()]);
-            if($ulinked_login->email != $this->getEmail()){
-                try {
-                        $ulinked_login->email = $this->getEmail();
-                        $DB->update_record('auth_oauth2_linked_login', $ulinked_login->email);
-                }catch  (Exception $e) {                                                                                                    echo "";
-                        echo "";
-                }
+        if($ulinked_login->email != $this->getEmail()) {
+            try {
+                    $ulinked_login->email = $this->getEmail();
+                    $DB->update_record('auth_oauth2_linked_login', $ulinked_login->email);
+            }catch  (Exception $e) {                                                                                                    echo "";
+                    echo "";
             }
+        }
             //$DB->get_record_sql('UPDATE {auth_oauth2_linked_login} SET email = ? WHERE issuerid = ? AND userid = ? AND username = ? ', [$this->getEmail(),$issuerdata->id,$usuario->id,$this->getUsername()]);
             //$linked = \auth_oauth2\linked_login::get_record(['issuerid' => $issuerdata->id, 'userid' => $usuario->id,'username'=>$this->getUsername()]);
             //$linked->email = $this->getEmail();
