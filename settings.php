@@ -88,4 +88,13 @@ if ($ADMIN->fulltree) {
             PARAM_INT
         )
     );
+    $settings->add(
+        new admin_setting_configtext(
+            'block_suap_crontab',
+            get_string('crontab', 'block_suap'),
+            get_string('configcrontab', 'block_suap'),
+            1,
+            PARAM_INT
+        )
+    );
 }
