@@ -11,6 +11,8 @@ class cron_task extends \core\task\scheduled_task
 
     public function execute()
     {   
+        global $CFG;
+        require_once($CFG->dirroot . '/block/suap/models.php');
         if($CFG->block_suap_crontab == 1) {
             $ano = date("Y");
             $periodo = (date("m") > 6 ? "2" : "1");
