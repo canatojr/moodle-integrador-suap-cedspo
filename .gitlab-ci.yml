@@ -1,6 +1,6 @@
    
 release:
-  stage: release
+  stage: build
   only:
     - master-ifsp
   image: alpine:3.11
