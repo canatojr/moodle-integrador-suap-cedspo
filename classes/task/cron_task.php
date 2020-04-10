@@ -1,8 +1,8 @@
 <?php
 namespace block_suap\task;
+
 class cron_task extends \core\task\scheduled_task
 {
- 
 
     public function get_name()
     {
@@ -11,15 +11,16 @@ class cron_task extends \core\task\scheduled_task
 
     public function execute()
     {   
+        use \block_suap\models as BlockSuap;
         global $CFG;
         include_once $CFG->dirroot . '/block/suap/models.php';
         if($CFG->block_suap_crontab == 1) {
             $ano = date("Y");
             $periodo = (date("m") > 6 ? "2" : "1");
             $url_suap=$CFG->wwwroot."/blocks/suap/listar_cursos.php";
-            foreach (\block_suap\Curso::ler_rest($ano, $periodo) as $row) {
+            foreach (BlockSuap\Curso::ler_rest($ano, $periodo) as $row) {
                 if ($row->ja_associado()) {
-                    (new \block_suap\Curso($row->id_on_suap))->importar($ano, $periodo);
+                    (new BlockSuap\Curso($row->id_on_suap))->importar($ano, $periodo);
                 }else{
                     echo "\nVocê deve associar o curso " . $row->nome . " em " . $url_suap;
                 }

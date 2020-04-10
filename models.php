@@ -1,5 +1,5 @@
 <?php
-namespace block_suap;
+namespace block_suap\models;
 require_once $CFG->dirroot . '/block/suap/lib.php';
 require_once $CFG->libdir . '/coursecatlib.php';
 require_once $CFG->dirroot . '/course/lib.php';
@@ -13,6 +13,7 @@ define("NIVEL_CURSO", $CFG->block_suap_nivel_curso);
 define("NIVEL_TURMA", $CFG->block_suap_nivel_turma);
 define("NIVEL_PERIODO", $CFG->block_suap_nivel_periodo);
 
+echo '"', __NAMESPACE__, '"';
 
 function get_or_die($param)
 {

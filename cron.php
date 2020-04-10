@@ -1,6 +1,6 @@
 <?php
 define('CLI_SCRIPT', true);
-require_once "header.php";
+require_once dirname(__FILE__) . "header.php";
 if($CFG->block_suap_crontab == 1) {
     $ano = date("Y");
     $periodo = (date("m") > 6 ? "2" : "1");
