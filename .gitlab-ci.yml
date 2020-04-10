@@ -6,19 +6,18 @@ release:
   image: alpine:3.11
   script:
     - apk --no-cache add zip unzip
-    - mkdir /release
+    - mkdir /public
     - mv /builds/ti/moodle-integrador-suap /builds/ti/suap/
-    - zip -r /release/block_suap_ifsp.zip /builds/ti/suap/*
+    - rm -rf /builds/ti/moodle-integrador-suap/.git
+    - zip -r /public/block_suap_ifsp.zip /builds/ti/suap/*
+    - mv /public /builds/ti/suap/
+    - mv /builds/ti/suap/ /builds/ti/moodle-integrador-suap
   artifacts:
     paths:
-      - /release
+      - public
 
 pages:
   stage: deploy
-  only:
-    - release
-  script:
-    - mv release public/
   artifacts:
     paths:
       - public
