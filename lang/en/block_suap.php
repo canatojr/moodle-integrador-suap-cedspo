@@ -19,3 +19,5 @@ $string['nivelturma'] = 'Nível da Categoria Moodle para a Turma SUAP';
 $string['confignivelturma'] = 'Indique um número inteiro.';
 $string['nivelperiodo'] = 'Nível da Categoria Moodle para o Período do Curso SUAP';
 $string['confignivelperiodo'] = 'Indique um número inteiro.';
+$string['crontab'] = 'Atualizar cursos pelo Crontab';
+$string['configcrontab'] = 'Indique 1 para habilitado e 0 para desabilitado.';
