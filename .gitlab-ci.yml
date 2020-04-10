@@ -20,6 +20,8 @@ pages:
   stage: deploy
   only:
     - master-ifsp
+  script:
+    - ls public/
   artifacts:
     paths:
       - public
