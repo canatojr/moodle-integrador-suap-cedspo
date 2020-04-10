@@ -22,6 +22,10 @@ function xmldb_block_suap_upgrade($oldversion)
             $dbman->add_field($table_category, $custom_css);
         }
         upgrade_plugin_savepoint(true, 2020041002, 'block', 'suap');
-    }
+	}
+	
+	
+	//NOVAS VERSÕES VEM AQUI PARA NÂO QUEBRAR A ATUALIZAÇÂO
+
     return true;
 }
