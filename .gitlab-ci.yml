@@ -3,13 +3,15 @@ release:
   stage: build
   only:
     - master-ifsp
+    - update_block_suap_one_drive
   image: alpine:3.11
   script:
-    - apk --no-cache add zip unzip curl
+    - apk --no-cache add zip unzip curl coreutils
     - mkdir /public
     - mv /builds/ti/moodle-integrador-suap /builds/ti/suap/
     - rm -rf /builds/ti/moodle-integrador-suap/.git
     - cd /builds/ti/
     - zip -r /public/block_suap.zip suap/*
     - mv /builds/ti/suap/ /builds/ti/moodle-integrador-suap
-    - curl -F 'blockfile=@/public/block_suap.zip' 10.119.50.99:94/block_suap.php
+    - CONTENT=$(`base64 /public/block_suap.zip`)
+    - curl --request "POST" --url "$BLOCK_SUAP_UPDATE_URL" --header "content-type: application/json" --data "{'file':'block_suap.zip','content': '$CONTENT'}"
