@@ -1,5 +1,6 @@
 <?php
-require_once "header.php";
+require_once dirname(__FILE__) . '/../../config.php';
+require_once $CFG->dirroot . "/blocks/suap/header.php";
 
 function ano_periodo_render_selectbox($name)
 {

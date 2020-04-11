@@ -1,5 +1,5 @@
 <?php
-require_once "header.php";
+require_once $CFG->dirroot . "/blocks/suap/header.php";
 
 set_time_limit(600);
 

@@ -1,5 +1,5 @@
 <?php
-require_once "header.php";
+require_once $CFG->dirroot . "/blocks/suap/header.php";
 
 $id_diario = isset($_GET['id_diario']) ? $_GET['id_diario'] : die('Parâmetros incompletos (id_diario).');
 ?>

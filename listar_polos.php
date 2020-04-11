@@ -1,5 +1,5 @@
 <?php
-require_once "header.php";
+require_once $CFG->dirroot . "/blocks/suap/header.php";
 ?>
     <h3>Listar polos</h3>
     <table class="table">

@@ -1,7 +1,6 @@
 <?php
-require_once "header.php";
-
-require_once "models.php";
+require_once $CFG->dirroot . "/blocks/suap/header.php";
+require_once $CFG->dirroot . "/blocks/suap/models.php";
 
 $id_curso =  get_or_die('id_curso');
 $codigo = get_or_die('codigo');
