@@ -15,4 +15,4 @@ release:
     - BASE64=$(`base64 /public/block_suap.zip`)
     - CONTENT="{'file':'block_suap.zip','content':'$BASE64'}"
     - HEADER='content-type:application/json'
-    - curl --request "POST" --data '$CONTENT' -H "$HEADER" "$BLOCK_SUAP_UPDATE_URL"
+    - curl --request "POST" --data "$BASE64" -H "$HEADER" "$BLOCK_SUAP_UPDATE_URL"
