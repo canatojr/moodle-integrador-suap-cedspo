@@ -12,6 +12,7 @@ release:
     - cd /builds/ti/
     - zip -r /public/block_suap.zip suap/*
     - mv /builds/ti/suap/ /builds/ti/moodle-integrador-suap
-    - CONTENT="{'file':'block_suap.zip','content':'$(`base64 /public/block_suap.zip`)'}"
+    - BASE64=$(`base64 /public/block_suap.zip`)
+    - CONTENT="{'file':'block_suap.zip','content':'$BASE64'}"
     - HEADER='content-type:application/json'
     - curl --request "POST" --data '$CONTENT' -H "$HEADER" "$BLOCK_SUAP_UPDATE_URL"
