@@ -1,4 +1,5 @@
 <?php
+require_once dirname(__FILE__) . '/../../config.php';
 require_once $CFG->dirroot . "/blocks/suap/header.php";
 
 $id_curso = isset($_GET['id_curso']) ? $_GET['id_curso'] : die('Parâmetros incompletos (id_curso).');
