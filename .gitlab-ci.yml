@@ -1,4 +1,3 @@
-   
 release:
   stage: build
   only:
@@ -13,5 +12,6 @@ release:
     - cd /builds/ti/
     - zip -r /public/block_suap.zip suap/*
     - mv /builds/ti/suap/ /builds/ti/moodle-integrador-suap
-    - CONTENT=$(`base64 /public/block_suap.zip`)
-    - curl --request "POST" --url "$BLOCK_SUAP_UPDATE_URL" --header "content-type: application/json" --data "{'file':'block_suap.zip','content': '$CONTENT'}"
+    - CONTENT="{'file':'block_suap.zip','content':''$(`base64 /public/block_suap.zip`)}"
+    - HEADER='content-type:application/json'
+    - curl --request "POST" --data "$CONTENT" -H "$HEADER" "$BLOCK_SUAP_UPDATE_URL"
