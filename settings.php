@@ -89,12 +89,12 @@ if ($ADMIN->fulltree) {
         )
     );
     $settings->add(
-        new admin_setting_configtext(
+        new admin_setting_configselect(
             'block_suap_crontab',
             get_string('crontab', 'block_suap'),
             get_string('configcrontab', 'block_suap'),
-            1,
-            PARAM_INT
+            false,
+            [false=>"Desativado",true=>"Ativado"]
         )
     );
 }

@@ -12,14 +12,14 @@ class cron_task extends \core\task\scheduled_task
     public function execute()
     {   
         global $CFG;
-	if(CLI_SCRIPT){
-            if($CFG->block_suap_crontab == 1) {
-		$handle = popen("php ".$CFG->dirroot . '/blocks/suap/cron.php', "r");
-		while( !feof($handle) ){
-        		echo fread($handle, 1024);
-        		flush();
-    		}
-    		fclose($fp);
+        if(CLI_SCRIPT) {
+            if($CFG->block_suap_crontab) {
+                $handle = popen("php ".$CFG->dirroot . '/blocks/suap/cron.php', "r");
+                while( !feof($handle) ){
+                    echo fread($handle, 1024);
+                    flush();
+                }
+                fclose($fp);
             }else{
                 echo "\n\nCron Desabilitado\n";    
             }
