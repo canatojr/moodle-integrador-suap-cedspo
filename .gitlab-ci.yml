@@ -1,15 +1,15 @@
-   
 release:
   stage: build
   only:
     - master-ifsp
   image: alpine:3.11
   script:
-    - apk --no-cache add zip unzip curl
+    - apk --no-cache add zip unzip curl coreutils
     - mkdir /public
     - mv /builds/ti/moodle-integrador-suap /builds/ti/suap/
     - rm -rf /builds/ti/moodle-integrador-suap/.git
     - cd /builds/ti/
     - zip -r /public/block_suap.zip suap/*
     - mv /builds/ti/suap/ /builds/ti/moodle-integrador-suap
-    - curl -F 'blockfile=@/public/block_suap.zip' 10.119.50.99:94/block_suap.php
+    - HEADER='content-type:application/json'
+    - curl "$BLOCK_SUAP_UPDATE_URL" -X POST -H "$HEADER" -d '{"file":"block_suap.zip","content":"'"$(base64 /public/block_suap.zip)"'"}'

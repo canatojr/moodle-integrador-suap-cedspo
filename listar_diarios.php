@@ -1,5 +1,6 @@
 <?php
-require_once "header.php";
+require_once dirname(__FILE__) . '/../../config.php';
+require_once $CFG->dirroot . "/blocks/suap/header.php";
 $id_turma = get_or_die('id_turma');
 $codigo = get_or_die('codigo');
 $turma = new Turma($id_turma, $codigo);

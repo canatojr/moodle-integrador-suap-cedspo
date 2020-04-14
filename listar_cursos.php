@@ -1,5 +1,6 @@
 <?php
-require_once "header.php";
+require_once dirname(__FILE__) . '/../../config.php';
+require_once $CFG->dirroot . "/blocks/suap/header.php";
 
 $ano = isset($_GET['ano']) ? $_GET['ano'] : $current_year;
 $periodo = isset($_GET['periodo']) ? $_GET['periodo'] : '1';

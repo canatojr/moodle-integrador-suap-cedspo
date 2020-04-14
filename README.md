@@ -32,19 +32,6 @@ Clique no botão para finalizar a instalação;
 A partir deste ponto você já poderá adicionar o bloco do "SUAP".
 > Entre na administração do site > habilitar edição de bloco > Adicionar um bloco > Escolher "SUAP > Moodle"
 
-# Banco de dados
-
-> TODO: Criar a tabela de relacionamento.
-
-O banco de dados deve ser modificado, com a adição das seguintes colunas:
-
-1. Na tabela "mdl_course_categories" adicionar coluna "id_suap"
-	> ALTER TABLE 'mdl_course_categories' ADD 'id_suap' VARCHAR(100) NULL ;
-2. Na tabela "mdl_course" adicionar coluna "id_suap"
-	> ALTER TABLE 'mdl_course' ADD 'id_suap' VARCHAR(100) NULL ;
-3. Na tabela "mdl_course_categories" adicionar coluna "custom_css"
-	> ALTER TABLE 'mdl_course_categories' ADD 'custom_css' TEXT NULL ;
-
 # SUAP
   
 ## Incluir a permissão *Sincronizador Moodle* para o usuário que fará a sincronização.
@@ -58,8 +45,4 @@ Para isso, faça login no SUAP e no menu lateral vá em *ENSINO* > *Cadastros Ge
 
 ### FAÇA ISSO EM UM AMBIENTE DE TESTE
 
-Incluir no crontab o seguinte Comando, ele irá importar todos os cursos do ano/semestre corrente
-> php /var/www/html/moodle/blocks/suap/cron.php > /dev/null
-
-EX. Para executar todos os dias as 4 horas da manhã
-> 0 4 * * * php /var/www/html/moodle/blocks/suap/cron.php > /dev/null
+Para utilizar a importação automática vá até as configurações do bloco e ative a atualização atraves do Crontab. Lembramos que para o correto funcionamento do crontab é necessário ativar o crontab do moodle seguindo a documentação encontrada em https://docs.moodle.org/

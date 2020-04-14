@@ -7,7 +7,7 @@ require_once dirname(__FILE__) . "/header.php";
 foreach (Curso::ler_rest($ano, $periodo) as $row) {
     if ($row->ja_associado()) {
         (new Curso($row->id_on_suap))->importar($ano, $periodo);
-    }else{
+    } else {
         echo "\nVocê deve associar o curso " . $row->nome . " em " . $url_suap;
     }
 }
