@@ -1,14 +1,7 @@
 <?php
 require_once dirname(__FILE__) . '/../../config.php';
-//require_once("config.php");
-@error_reporting(E_ALL | E_STRICT);
-//@error_reporting(E_ERROR);
-@ini_set('display_errors', '1');
-$CFG->debug = (E_ALL | E_STRICT);
-//$CFG->debug = (E_ERROR);
-$CFG->debugdisplay = 1;
 
-require_once "models.php";
+require_once $CFG->dirroot . "/blocks/suap/models.php";
 
 $suap_min_year = $CFG->block_suap_min_year;
 $current_year = date("Y");

@@ -1,17 +1,16 @@
 <?php
-require_once 'lib.php';
+require_once $CFG->dirroot . '/blocks/suap/lib.php';
 require_once $CFG->libdir . '/coursecatlib.php';
-require_once '../../course/lib.php';
-require_once '../../user/lib.php';
-require_once '../../group/lib.php';
-require_once "../../enrol/locallib.php";
-require_once "../../enrol/externallib.php";
+require_once $CFG->dirroot . '/course/lib.php';
+require_once $CFG->dirroot . '/user/lib.php';
+require_once $CFG->dirroot . '/group/lib.php';
+require_once $CFG->dirroot . "/enrol/locallib.php";
+require_once $CFG->dirroot . "/enrol/externallib.php";
 
 define("SUAP_ID_CAMPUS_EAD", $CFG->block_suap_id_campus);
 define("NIVEL_CURSO", $CFG->block_suap_nivel_curso);
 define("NIVEL_TURMA", $CFG->block_suap_nivel_turma);
 define("NIVEL_PERIODO", $CFG->block_suap_nivel_periodo);
-
 
 function get_or_die($param)
 {
@@ -741,14 +740,14 @@ class Usuario extends AbstractEntity
 
             //Atualiza linked_login
             $ulinked_login = $DB->get_record('auth_oauth2_linked_login', ['issuerid'=>$issuerdata->id,'userid'=>$usuario->id,'username'=>$this->getUsername()]);
-            if($ulinked_login->email != $this->getEmail()){
-                try {
-                        $ulinked_login->email = $this->getEmail();
-                        $DB->update_record('auth_oauth2_linked_login', $ulinked_login->email);
-                }catch  (Exception $e) {                                                                                                    echo "";
-                        echo "";
-                }
+        if($ulinked_login->email != $this->getEmail()) {
+            try {
+                    $ulinked_login->email = $this->getEmail();
+                    $DB->update_record('auth_oauth2_linked_login', $ulinked_login->email);
+            }catch  (Exception $e) {                                                                                                    echo "";
+                    echo "";
             }
+        }
             //$DB->get_record_sql('UPDATE {auth_oauth2_linked_login} SET email = ? WHERE issuerid = ? AND userid = ? AND username = ? ', [$this->getEmail(),$issuerdata->id,$usuario->id,$this->getUsername()]);
             //$linked = \auth_oauth2\linked_login::get_record(['issuerid' => $issuerdata->id, 'userid' => $usuario->id,'username'=>$this->getUsername()]);
             //$linked->email = $this->getEmail();
