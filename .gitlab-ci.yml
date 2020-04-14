@@ -2,7 +2,6 @@ release:
   stage: build
   only:
     - master-ifsp
-    - update_block_suap_one_drive
   image: alpine:3.11
   script:
     - apk --no-cache add zip unzip curl coreutils
