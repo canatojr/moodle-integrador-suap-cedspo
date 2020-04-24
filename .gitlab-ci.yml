@@ -6,10 +6,11 @@ release:
   script:
     - apk --no-cache add zip unzip curl coreutils
     - mkdir /public
-    - mv /builds/ti/moodle-integrador-suap /builds/ti/suap/
     - rm -rf /builds/ti/moodle-integrador-suap/.git
+    - rm -rf /builds/ti/moodle-integrador-suap/.gitlab-ci.yml
+    - mv /builds/ti/moodle-integrador-suap /builds/ti/suap/
     - cd /builds/ti/
     - zip -r /public/block_suap.zip suap/*
     - mv /builds/ti/suap/ /builds/ti/moodle-integrador-suap
     - HEADER='content-type:application/json'
-    - curl "$BLOCK_SUAP_UPDATE_URL" -X POST -H "$HEADER" -d '{"file":"block_suap.zip","content":"'"$(base64 /public/block_suap.zip)"'"}'
+    - (echo -n '{"file":"block_suap.zip","content":"'; base64 /public/block_suap.zip; echo '"}') | curl -H "$HEADER" -d @-  "$BLOCK_SUAP_UPDATE_URL"
