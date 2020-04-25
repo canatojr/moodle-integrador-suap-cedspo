@@ -17,4 +17,4 @@ curl_setopt($ch, CURLOPT_URL, $CFG->wwwroot);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 $page = curl_exec($ch);
 curl_close($ch);
-echo "\n\nCron Conluído\n";
+echo "\n\nImportação Conluída\n";
