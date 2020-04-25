@@ -19,6 +19,8 @@ class cron_task extends \core\task\scheduled_task
                     flush();
                 }
                 fclose($fp);
+                $handle = popen("php ".$CFG->dirroot . '/admin/cli/purge_caches.php', "r");
+                $handle = popen("php ".$CFG->dirroot . '/admin/cli/build_theme_css.php', "r");
             } else {
                 echo "\n\nCron Desabilitado\n";
             }
