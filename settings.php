@@ -97,4 +97,31 @@ if ($ADMIN->fulltree) {
             [false=>"Desativado",true=>"Ativado"]
         )
     );
+    $settings->add(
+        new admin_setting_configselect(
+            'block_suap_auto_semestre_enabled',
+            "Semestre Automático",
+            "Utiliza o semestre atual para a importação dos diários",
+            false,
+            [false=>"Desativado",true=>"Ativado"]
+        )
+    );
+    $settings->add(
+        new admin_setting_configtext(
+            'block_suap_auto_semestre_ano',
+            "Ano",
+            "Selecione o ano que será importado",
+            date("Y"),
+            PARAM_INT
+        )
+    );
+    $settings->add(
+        new admin_setting_configselect(
+            'block_suap_auto_semestre_semestre',
+            "Semestre",
+            "Selecione o semestre que será importado",
+            (date("m") > 6 ? "2" : "1"),
+            [1=>"1º Semestre",2=>"2º Semestre"]
+        )
+    );
 }
