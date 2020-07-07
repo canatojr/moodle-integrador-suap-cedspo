@@ -12,6 +12,26 @@ define("NIVEL_CURSO", $CFG->block_suap_nivel_curso);
 define("NIVEL_TURMA", $CFG->block_suap_nivel_turma);
 define("NIVEL_PERIODO", $CFG->block_suap_nivel_periodo);
 
+//Automaticamente Atualiza o DB em caso de não estar configurado
+//Isso é uma dependencia para o plugin executar corretamente
+$dbman = $DB->get_manager();
+$table_category = new xmldb_table('course_categories');
+$table_course = new xmldb_table('course');
+$idsuap = new xmldb_field('id_suap', XMLDB_TYPE_CHAR, '100', null, null, null, null, null);
+$custom_css = new xmldb_field('custom_css', XMLDB_TYPE_CHAR, '100', null, null, null, '', null);
+
+if (!$dbman->field_exists($table_course, $idsuap)) {
+    $dbman->add_field($table_course, $idsuap);
+}
+if (!$dbman->field_exists($table_category, $idsuap)) {
+    $dbman->add_field($table_category, $idsuap);
+}
+if (!$dbman->field_exists($table_category, $custom_css)) {
+    $dbman->add_field($table_category, $custom_css);
+}
+
+
+
 function get_or_die($param)
 {
     return isset($_GET[$param]) ? $_GET[$param] : die("Parâmetros incompletos ($param).");
@@ -279,8 +299,8 @@ class Category extends AbstractEntity
             if (($level > 0) && (count(explode(' / ', $label)) != $level)) {
                 continue;
             }
-        $jah_associado = in_array($key, $has_suap_ids) ? "disabled" : "";
-        echo "<label class='as_row $jah_associado' ><input type='radio' value='$key' name='categoria' $jah_associado />$label</label>";
+            $jah_associado = in_array($key, $has_suap_ids) ? "disabled" : "";
+            echo "<label class='as_row $jah_associado' ><input type='radio' value='$key' name='categoria' $jah_associado />$label</label>";
         endforeach;
     }
 }
@@ -368,12 +388,12 @@ class Curso extends Category
                     }
                     foreach ($diarios as $diario_suap):
                         $diario_suap->ler_moodle();
-                    if ($diario_suap->ja_associado()) {
-                        echo "<li class='notifysuccess'>O diário SUAP <b>{$diario_suap->getCodigo()}</b> JÁ está associado ao course <b>{$diario_suap->fullname}</b> no Moodle.";
-                    } else {
-                        echo "<li class='notifyproblem'>O <b>diário SUAP {$diario_suap->getCodigo()}</b> NÃO está associado a um <b>course no Moodle</b>.";
-                    }
-                    echo "</li>";
+                        if ($diario_suap->ja_associado()) {
+                            echo "<li class='notifysuccess'>O diário SUAP <b>{$diario_suap->getCodigo()}</b> JÁ está associado ao course <b>{$diario_suap->fullname}</b> no Moodle.";
+                        } else {
+                            echo "<li class='notifyproblem'>O <b>diário SUAP {$diario_suap->getCodigo()}</b> NÃO está associado a um <b>course no Moodle</b>.";
+                        }
+                        echo "</li>";
                     endforeach;
                     echo "</ol></li>";
                 };
