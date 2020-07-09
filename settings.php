@@ -102,8 +102,8 @@ if ($ADMIN->fulltree) {
             'block_suap_auto_semestre_enabled',
             "Semestre Automático",
             "Utiliza o semestre atual para a importação dos diários",
-            false,
-            [false=>"Desativado",true=>"Ativado"]
+            true,
+            [true=>"Ativado",false=>"Desativado"]
         )
     );
     $settings->add(
