@@ -656,10 +656,10 @@ class Usuario extends AbstractEntity
 
     public function getSituacaoNoDiario()
     {
-        if ($this->getTipo == 'Aluno') {
-            return $this->situacao_no_diario == 'Cursando' ? 0 : 1;
+        if ($this->getTipo() == 'Aluno') {
+            return strtolower(trim($this->situacao_no_diario)) == 'cursando' ? 0 : 1;
         } else {
-            return $this->situacao_no_diario == 'ativo' ? 0 : 1;
+            return strtolower(trim($this->situacao_no_diario)) == 'ativo' ? 0 : 1;
         }
     }
 
