@@ -826,7 +826,8 @@ class Usuario extends AbstractEntity
             if ($enrolment->status != $this->getSituacaoNoDiario()) 
             {
                 try {
-                    $DB->update_record('user_enrolments', array('enrolid'=>$enrol->id,'status'=>$this->getSituacaoNoDiario()));
+                    $enrolment->status = $this->getSituacaoNoDiario());
+                    $DB->update_record('user_enrolments', $enrolment);
                     echo " Situação no diário atualizada. ";
                 } catch (Exception $e) {
                     echo " Não foi possível atualizar situação no diário. ";
