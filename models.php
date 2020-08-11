@@ -600,8 +600,9 @@ class Usuario extends AbstractEntity
     public $status;
     public $situacao;
     public $id_moodle;
+    public $situacao_no_diario;
 
-    public function __construct($id, $nome = null, $login = null, $tipo = null, $email = null, $email_secundario = null, $status = null)
+    public function __construct($id, $nome = null, $login = null, $tipo = null, $email = null, $email_secundario = null, $status = null, $situacao_no_diario = null)
     {
         $this->id = $id;
         $this->nome = $nome;
@@ -610,6 +611,7 @@ class Usuario extends AbstractEntity
         $this->email = $email;
         $this->email_secundario = $email_secundario;
         $this->status = $status;
+        $this->situacao_no_diario = $situacao_no_diario;
     }
 
     public function getUsername()
@@ -650,6 +652,15 @@ class Usuario extends AbstractEntity
     public function getTipo()
     {
         return $this->tipo ? $this->tipo : 'Aluno';
+    }
+
+    public function getSituacaoNoDiario()
+    {
+        if ($this->getTipo() == 'Aluno') {
+            return strtolower(trim($this->situacao_no_diario)) == 'cursando' ? 0 : 1;
+        } else {
+            return strtolower(trim($this->situacao_no_diario)) == 'ativo' ? 0 : 1;
+        }
     }
 
     public function getRoleId()
@@ -766,7 +777,6 @@ class Usuario extends AbstractEntity
                 $DB->update_record('auth_oauth2_linked_login', $ulinked_login->email);
             } catch (Exception $e) {
                 echo "";
-                echo "";
             }
         }
         //$DB->get_record_sql('UPDATE {auth_oauth2_linked_login} SET email = ? WHERE issuerid = ? AND userid = ? AND username = ? ', [$this->getEmail(),$issuerdata->id,$usuario->id,$this->getUsername()]);
@@ -804,16 +814,28 @@ class Usuario extends AbstractEntity
                 'user_enrolments',
                 (object)['enrolid'=>$enrol->id,
                                               'userid'=>$this->id_moodle,
-                                              'status'=>0,
+                                              'status'=>$this->getSituacaoNoDiario(),
                                               'timecreated'=>time(),
                                               'timemodified'=>time(),
                                               'timestart'=>time(),
                                               'modifierid'=>$USER->id,
-                'timeend'=>0,]
+                                              'timeend'=>0,]
             );
             echo " Foi arrolado. ";
         } else {
-            echo " Já arrolado. ";
+            if ($enrolment->status != $this->getSituacaoNoDiario()) 
+            {
+                try {
+                    $enrolment->status = $this->getSituacaoNoDiario();
+                    $DB->update_record('user_enrolments', $enrolment);
+                    echo " Situação no diário atualizada. ";
+                } catch (Exception $e) {
+                    echo " Não foi possível atualizar situação no diário. ";
+                }
+            } else 
+            {
+                echo " Já arrolado. ";
+            }
         }
 
         $assignment = $DB->get_record(
@@ -888,7 +910,7 @@ class Professor extends Usuario
 
     public static function ler_rest($id_diario)
     {
-        return AbstractEntity::ler_rest_generico("listar_professores_ead", $id_diario, 'Professor', ['nome', 'login', 'tipo', 'email', 'email_secundario', 'status']);
+        return AbstractEntity::ler_rest_generico("listar_professores_ead", $id_diario, 'Professor', ['nome', 'login', 'tipo', 'email', 'email_secundario', 'status', 'situacao_no_diario']);
     }
 
     public static function sincronizar($diario, $oque=null, $list=null)
@@ -919,7 +941,7 @@ class Aluno extends Usuario
             "listar_alunos_ead",
             $id_diario,
             'Aluno',
-            ['nome', 'matricula', 'email', 'email_secundario', 'situacao', 'polo']
+            ['nome', 'matricula', 'email', 'email_secundario', 'situacao', 'polo', 'situacao_no_diario']
         );
     }
 
