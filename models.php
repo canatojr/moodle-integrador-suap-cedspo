@@ -657,7 +657,19 @@ class Usuario extends AbstractEntity
     public function getSituacaoNoDiario()
     {
         if ($this->getTipo() == 'Aluno') {
-            return explode(" ", strtolower(trim($this->situacao_no_diario)))[0] == 'cursando' ? 0 : 1;
+            $situacao_aluno = explode(" ", strtolower(trim($this->situacao_no_diario)))[0];
+            if($situacao_aluno == 'cancelado'){
+                $return_situacao = 1;
+            }elseif($situacao_aluno == 'dispensado'){
+                $return_situacao = 1;
+            }elseif($situacao_aluno == 'trancado'){
+                $return_situacao = 1;
+            }elseif($situacao_aluno == 'transferido'){
+                $return_situacao = 1;
+            }else{
+                $return_situacao = 0;
+            }
+            return $return_situacao;
         } else {
             return strtolower(trim($this->situacao_no_diario)) == 'ativo' ? 0 : 1;
         }
