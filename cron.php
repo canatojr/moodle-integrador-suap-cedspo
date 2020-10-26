@@ -11,7 +11,12 @@ if($CFG->block_suap_auto_semestre_enabled){
     importar_diarios_suap($CFG->block_suap_auto_semestre_ano, $CFG->block_suap_auto_semestre_semestre);
 }
 
-function importar_diarios_suap($ano, $periodo){
+function importar_diarios_suap($ano, $periodo, $continue=true){
+    if($periodo > 1 && $continue==true){
+        importar_diarios_suap($ano, $periodo-1, false);
+    }elseif($continue==true){
+        importar_diarios_suap($ano-1, $periodo+1, false);
+    }
     $url_suap=$CFG->wwwroot."/blocks/suap/listar_cursos.php";
     foreach (Curso::ler_rest($ano, $periodo) as $row) {
         if ($row->ja_associado()) {
