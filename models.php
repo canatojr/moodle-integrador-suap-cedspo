@@ -1,6 +1,6 @@
 <?php
 require_once $CFG->dirroot . '/blocks/suap/lib.php';
-require_once $CFG->libdir . '/coursecatlib.php';
+//require_once $CFG->libdir . '/coursecatlib.php';
 require_once $CFG->dirroot . '/course/lib.php';
 require_once $CFG->dirroot . '/user/lib.php';
 require_once $CFG->dirroot . '/group/lib.php';
@@ -295,7 +295,7 @@ class Category extends AbstractEntity
     {
         global $DB;
         $has_suap_ids = array_keys($DB->get_records_sql('SELECT id FROM {course_categories} WHERE id_suap IS NOT NULL'));
-        foreach (coursecat::make_categories_list('moodle/category:manage') as $key => $label):
+        foreach (core_course_category::make_categories_list('moodle/category:manage') as $key => $label):
             if (($level > 0) && (count(explode(' / ', $label)) != $level)) {
                 continue;
             }
@@ -461,7 +461,7 @@ class Turma extends Category
     {
         try {
             // Cria a categoria
-            $record = coursecat::create(
+            $record = core_course_category::create(
                 array(
                 "name" => "Turma: {$this->codigo}",
                 "idnumber" => $this->codigo,
@@ -568,7 +568,7 @@ class Diario extends AbstractEntity
 
         $periodo = $this->get_record('course_categories', $periodo_params);
         if (!$periodo) {
-            $periodo = coursecat::create($periodo_params);
+            $periodo = core_course_category::create($periodo_params);
         }
 
         // Criar o diário
