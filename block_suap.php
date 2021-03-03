@@ -8,7 +8,7 @@ class block_suap extends block_base
     public function init()
     {
         $this->title = get_string('suap', 'block_suap');
-        $this->version = 2017072600;
+        $this->version = get_config('block_suap', 'version');
     }
 
     public function applicable_formats()
@@ -49,6 +49,7 @@ class block_suap extends block_base
         $this->content->text .= "</ul>";
         
         $this->content->text .= "<p>Consulte seu ID de Câmpus e configure na <a href=\"{$CFG->wwwroot}/admin/settings.php?section=blocksettingsuap\">Administração do Bloco</a>.</p>";
+        $this->content->text .= "<p>Versão Instalada: {$this->version}</p>";
         
 
         return $this->content;
