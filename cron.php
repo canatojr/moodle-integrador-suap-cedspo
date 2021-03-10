@@ -25,13 +25,12 @@ function importar_diarios_suap($ano, $periodo, $continue=true){
             echo "\nVocê deve associar o curso " . $row->nome . " em " . $url_suap;
         }
     }
-
-    $ch = curl_init($CFG->wwwroot);
-    curl_setopt($ch, CURLOPT_URL, $CFG->wwwroot);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    $page = curl_exec($ch);
-    curl_close($ch);
     echo "\n\nImportação $ano.$periodo Conluída\n";
 }
 
+$ch = curl_init($CFG->wwwroot);
+curl_setopt($ch, CURLOPT_URL, $CFG->wwwroot);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+$page = curl_exec($ch);
+curl_close($ch);
 
