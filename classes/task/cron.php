@@ -37,6 +37,8 @@ class cron extends \core\task\scheduled_task
                 'periodo' => $periodo,
                 'clean' => false
         ));
+        mtrace("Agendando importação do ".$ano."/".$periodo);
+        \core\task\manager::reschedule_or_queue_adhoc_task($task);
 
         if($periodo > 1){
             $periodo = $periodo-1;
@@ -51,7 +53,7 @@ class cron extends \core\task\scheduled_task
                 'clean' => true
         ));
 
-        \core\task\manager::reschedule_or_queue_adhoc_task($task);
+        mtrace("Agendando importação do ".$ano."/".$periodo);
         \core\task\manager::reschedule_or_queue_adhoc_task($task2);
         mtrace("Tarefas agendadas");
     }
