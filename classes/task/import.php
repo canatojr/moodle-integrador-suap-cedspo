@@ -15,9 +15,9 @@ class import extends \core\task\adhoc_task
 
                 require_once(__DIR__ . "/../../header.php");
                 $url_suap=$CFG->wwwroot."/blocks/suap/listar_cursos.php";
-                foreach (Curso::ler_rest($data->{'ano'}, $data->{'periodo'}) as $row) {
+                foreach (\Curso::ler_rest($data->{'ano'}, $data->{'periodo'}) as $row) {
                     if ($row->ja_associado()) {
-                        (new Curso($row->id_on_suap))->importar($data->{'ano'}, $data->{'periodo'});
+                        (new \Curso($row->id_on_suap))->importar($data->{'ano'}, $data->{'periodo'});
                     } else {
                         echo "\nVocê deve associar o curso " . $row->nome . " em " . $url_suap;
                     }
