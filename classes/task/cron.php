@@ -10,6 +10,7 @@ class cron extends \core\task\scheduled_task
 
     public function execute()
     { 
+        global $CFG;
         mtrace("Agendando tarefas de importação");
 
         $task = new import();
@@ -43,7 +44,7 @@ class cron extends \core\task\scheduled_task
             $periodo = $periodo+1;
         }
 
-        $task->set_custom_data(array(
+        $task2->set_custom_data(array(
                 'ano' => $ano,
                 'periodo' => $periodo
         ));

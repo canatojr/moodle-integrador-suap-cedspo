@@ -13,6 +13,6 @@ public function execute_and_print($command)
                 fclose($handle);
     }
 
-execute_and_print("php ".$CFG->dirroot . "/admin/cli/purge_caches.php --execute='\block_suap\task\cron'");
+execute_and_print("php ".$CFG->dirroot . "/admin/cli/scheduled_task.php --execute='\block_suap\task\cron'");
 
 
