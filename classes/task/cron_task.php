@@ -1,12 +1,26 @@
 <?php
 namespace block_suap\task;
 
-class cron_task extends \core\task\scheduled_task
+class cron extends \core\task\scheduled_task
 {
     public function get_name()
     {
         return "Importa alunos e professores do SUAP";
     }
+
+    public function execute()
+    { 
+        mtrace("Agendando tarefa de importação");
+        $task = new import();
+        $task->set_next_run_time(time() + 1 * MINSECS);
+        \core\task\manager::reschedule_or_queue_adhoc_task($task);
+        mtrace("Tarefa agendada");
+    }
+}
+
+
+class import extends \core\task\adhoc_task
+{
 
     public function execute_and_print($command)
     {
@@ -20,24 +34,48 @@ class cron_task extends \core\task\scheduled_task
 
     public function execute()
     { 
-        $lockfactoryclass = \core\lock\lock_config::get_lock_factory_class();
-        $blocksuapfactory = new $lockfactoryclass('block_suap');
-        $suaplock = $blocksuapfactory->get_lock('block_suap_task_cron_task', 0);
-
-        mtrace("Importação SUAP>Moodle via cron iniciada");
         global $CFG;
         if (CLI_SCRIPT) {
             if ($CFG->block_suap_crontab) {
+                mtrace("Importação SUAP>Moodle via cron iniciada");
                 $this->execute_and_print("php ".$CFG->dirroot . '/blocks/suap/cron.php');
-                $suaplock->release();
-                \core\task\manager::clear_static_caches();
-                $this->execute_and_print("php ".$CFG->dirroot . '/admin/cli/purge_caches.php');
-                $this->execute_and_print("php ".$CFG->dirroot . '/admin/cli/build_theme_css.php');
+                mtrace("Importação SUAP>Moodle via cron terminada");
+                mtrace("Agendando tarefa de limpeza");
+                $task = new \block_suap\task\clean_cache();
+                $task->set_next_run_time(time() + 1 * MINSECS);
+                \core\task\manager::reschedule_or_queue_adhoc_task($task);
+                mtrace("Tarefa agendada");
             } else {
-                echo "\n\nCron Desabilitado\n";
+                mtrace("Cron Desabilitado");
             }
         }
-        mtrace("Importação SUAP>Moodle via cron terminada");
-        $suaplock->release();
+        
+        
+    }
+}
+
+
+class clean_cache extends \core\task\adhoc_task
+{
+    public function execute()
+    { 
+        mtrace("Limpando cache");
+        $this->popen("php ".$CFG->dirroot . '/admin/cli/purge_caches.php', "r");
+        mtrace("Cache limpo");
+        mtrace("Agendando tarefa");
+        $task = new \block_suap\task\build_css();
+        $task->set_next_run_time(time() + 1 * MINSECS);
+        \core\task\manager::reschedule_or_queue_adhoc_task($task);
+        mtrace("Tarefa agendada");
+    }
+}
+
+class build_css extends \core\task\adhoc_task
+{
+    public function execute()
+    { 
+        mtrace("Compilando CSS");
+        $this->popen("php ".$CFG->dirroot . '/admin/cli/build_theme_css.php', "r");
+        mtrace("CSS compilado");
     }
 }

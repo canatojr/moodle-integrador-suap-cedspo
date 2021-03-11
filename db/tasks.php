@@ -6,7 +6,7 @@ $minutos=array(0,15,30,45);
 $tasks =
     array(
         array(
-            'classname' => 'block_suap\task\cron_task',
+            'classname' => 'block_suap\task\cron',
             'blocking' => 1,
             'minute' => $minutos[array_rand($minutos)],       //run after every 15 mins
             'hour' => $horas[array_rand($horas)],

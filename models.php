@@ -800,7 +800,7 @@ class Usuario extends AbstractEntity
         if (!CLI_SCRIPT) {
             echo "$oper <b><a href='../../user/profile.php?id={$usuario->id}'>{$this->getUsername()} - {$this->nome}</a> ({$this->getTipo()})</b>";
         } else {
-            echo "\n$oper {$this->getUsername()} - {$this->nome} ({$this->getTipo()})";
+            // echo "\n$oper {$this->getUsername()} - {$this->nome} ({$this->getTipo()})";
         }
         
         $this->id_moodle = $usuario->id;
