@@ -702,13 +702,14 @@ class Usuario extends AbstractEntity
             foreach ($list as $instance) {
                 if (!CLI_SCRIPT) {
                     echo "<li>";
-                }
-                
                 $instance->importar();
                 $instance->arrolar($diario);
                 $instance->engrupar($diario);
-                if (!CLI_SCRIPT) {
                     echo "</li>";
+                }else{
+                    $importar = $instance->importar();
+                    $arrolar = $instance->arrolar($diario);
+                    $engrupar = $instance->engrupar($diario);
                 }
             }
             if (!CLI_SCRIPT) {
