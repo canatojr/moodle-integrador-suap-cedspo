@@ -3,24 +3,26 @@ namespace block_suap\task;
 
 class import extends \core\task\adhoc_task
 {
-
-    public function execute_and_print($command)
-    {
-        $handle = popen($command, "r");
-        while (!feof($handle)) {
-            echo fread($handle, 1024);
-            flush();
-        }
-                fclose($handle);
-    }
-
     public function execute()
     { 
         global $CFG;
+        $data = $this->get_custom_data();
+        
         if (CLI_SCRIPT) {
             if ($CFG->block_suap_crontab) {
                 mtrace("Importação SUAP>Moodle via cron iniciada");
-                $this->execute_and_print("php ".$CFG->dirroot . '/blocks/suap/cron.php');
+
+                require_once $CFG->dataroot . "blocks/suap/header.php";
+                $url_suap=$CFG->wwwroot."/blocks/suap/listar_cursos.php";
+                foreach (Curso::ler_rest($data->{'ano'}, $data->{'periodo'}) as $row) {
+                    if ($row->ja_associado()) {
+                        (new Curso($row->id_on_suap))->importar($data->{'ano'}, $data->{'periodo'});
+                    } else {
+                        echo "\nVocê deve associar o curso " . $row->nome . " em " . $url_suap;
+                    }
+                }
+
+
                 mtrace("Importação SUAP>Moodle via cron terminada");
                 mtrace("Agendando tarefa de limpeza");
                 $task = new \block_suap\task\clean_cache();
