@@ -702,14 +702,14 @@ class Usuario extends AbstractEntity
             foreach ($list as $instance) {
                 if (!CLI_SCRIPT) {
                     echo "<li>";
+                }
+                
                 $instance->importar();
                 $instance->arrolar($diario);
                 $instance->engrupar($diario);
+
+                if (!CLI_SCRIPT) {
                     echo "</li>";
-                }else{
-                    $importar = $instance->importar();
-                    $arrolar = $instance->arrolar($diario);
-                    $engrupar = $instance->engrupar($diario);
                 }
             }
             if (!CLI_SCRIPT) {
@@ -801,7 +801,7 @@ class Usuario extends AbstractEntity
         if (!CLI_SCRIPT) {
             echo "$oper <b><a href='../../user/profile.php?id={$usuario->id}'>{$this->getUsername()} - {$this->nome}</a> ({$this->getTipo()})</b>";
         } else {
-            // echo "\n$oper {$this->getUsername()} - {$this->nome} ({$this->getTipo()})";
+             echo "\n$oper {$this->getUsername()} - {$this->nome} ({$this->getTipo()})";
         }
         
         $this->id_moodle = $usuario->id;
