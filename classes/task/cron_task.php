@@ -19,7 +19,11 @@ class cron_task extends \core\task\scheduled_task
     }
 
     public function execute()
-    {
+    { 
+        $lockfactoryclass = \core\lock\lock_config::get_lock_factory_class();
+        $blocksuapfactory = new $lockfactoryclass('block_suap');
+        $suaplock = $blocksuapfactory->get_lock('block_suap_task_cron_task', 0);
+
         mtrace("Importação SUAP>Moodle via cron iniciada");
         global $CFG;
         if (CLI_SCRIPT) {
@@ -33,5 +37,6 @@ class cron_task extends \core\task\scheduled_task
             }
         }
         mtrace("Importação SUAP>Moodle via cron terminada");
+        $suaplock->release();
     }
 }
