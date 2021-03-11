@@ -34,7 +34,8 @@ class cron extends \core\task\scheduled_task
 
         $task->set_custom_data(array(
                 'ano' => $ano,
-                'periodo' => $periodo
+                'periodo' => $periodo,
+                'clean' => false
         ));
 
         if($periodo > 1){
@@ -46,7 +47,8 @@ class cron extends \core\task\scheduled_task
 
         $task2->set_custom_data(array(
                 'ano' => $ano,
-                'periodo' => $periodo
+                'periodo' => $periodo,
+                'clean' => true
         ));
 
         \core\task\manager::reschedule_or_queue_adhoc_task($task);

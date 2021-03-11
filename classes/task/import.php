@@ -25,11 +25,14 @@ class import extends \core\task\adhoc_task
 
 
                 mtrace("Importação SUAP>Moodle via cron terminada");
-                mtrace("Agendando tarefa de limpeza");
-                $task = new \block_suap\task\clean_cache();
-                $task->set_next_run_time(time() + 1 * MINSECS);
-                \core\task\manager::reschedule_or_queue_adhoc_task($task);
-                mtrace("Tarefa agendada");
+                if($data->{'clean'}){
+                    mtrace("Agendando tarefa de limpeza");
+                    $task = new \block_suap\task\clean_cache();
+                    $task->set_next_run_time(time() + 1 * MINSECS);
+                    \core\task\manager::reschedule_or_queue_adhoc_task($task);
+                    mtrace("Tarefa agendada");
+                }
+                
             } else {
                 mtrace("Cron Desabilitado");
             }

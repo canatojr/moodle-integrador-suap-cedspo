@@ -13,6 +13,7 @@ class clean_cache extends \core\task\adhoc_task
         $task->set_next_run_time(time() + 1 * MINSECS);
         \core\task\manager::reschedule_or_queue_adhoc_task($task);
         mtrace("Tarefa agendada");
+        \core\task\manager::clear_static_caches();
     }
 }
 
