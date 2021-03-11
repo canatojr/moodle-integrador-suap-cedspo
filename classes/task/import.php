@@ -6,6 +6,7 @@ class import extends \core\task\adhoc_task
     public function execute()
     { 
         global $CFG;
+        global $DB;
         $data = $this->get_custom_data();
         
         if (CLI_SCRIPT) {
