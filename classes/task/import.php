@@ -12,7 +12,7 @@ class import extends \core\task\adhoc_task
             if ($CFG->block_suap_crontab) {
                 mtrace("Importação SUAP>Moodle via cron iniciada");
 
-                require_once $CFG->dataroot . "blocks/suap/header.php";
+                require_once $CFG->dataroot . "/blocks/suap/header.php";
                 $url_suap=$CFG->wwwroot."/blocks/suap/listar_cursos.php";
                 foreach (Curso::ler_rest($data->{'ano'}, $data->{'periodo'}) as $row) {
                     if ($row->ja_associado()) {
