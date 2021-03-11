@@ -7,13 +7,15 @@ class clean_cache extends \core\task\adhoc_task
     { 
         mtrace("Limpando cache");
         $this->popen("php ".$CFG->dirroot . '/admin/cli/purge_caches.php', "r");
+        \core\task\manager::clear_static_caches();
         mtrace("Cache limpo");
-        mtrace("Agendando tarefa");
+
+        mtrace("Agendando tarefa para compilar CSS");
         $task = new \block_suap\task\build_css();
         $task->set_next_run_time(time() + 1 * MINSECS);
         \core\task\manager::reschedule_or_queue_adhoc_task($task);
         mtrace("Tarefa agendada");
-        \core\task\manager::clear_static_caches();
+        
     }
 }
 
