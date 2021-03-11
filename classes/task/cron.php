@@ -57,6 +57,6 @@ class cron extends \core\task\scheduled_task
         \core\task\manager::reschedule_or_queue_adhoc_task($task2);
         mtrace("Tarefas agendadas");
 
-        mtrace("Você pode ver os logs <a href='"$CFG->wwwroot."/admin/tasklogs.php?filter=block_suap%5Ctask%5C&result=-1'>aqui</a>");
+        mtrace("Você pode ver os logs <a href='".$CFG->wwwroot."/admin/tasklogs.php?filter=block_suap%5Ctask%5C&result=-1'>aqui</a>");
     }
 }
