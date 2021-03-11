@@ -15,6 +15,7 @@ class build_css extends \core\task\adhoc_task
 
     public function execute()
     { 
+        global $CFG;
         mtrace("Compilando CSS");
         $this->execute_and_print("php ".$CFG->dirroot . '/admin/cli/build_theme_css.php', "r");
         mtrace("CSS compilado");

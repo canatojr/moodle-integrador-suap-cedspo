@@ -14,6 +14,7 @@ class clean_cache extends \core\task\adhoc_task
     }
     public function execute()
     { 
+        global $CFG;
         mtrace("Limpando cache");
         $this->execute_and_print("php ".$CFG->dirroot . '/admin/cli/purge_caches.php', "r");
         \core\task\manager::clear_static_caches();
