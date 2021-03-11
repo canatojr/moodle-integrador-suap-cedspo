@@ -29,6 +29,7 @@ class cron_task extends \core\task\scheduled_task
         if (CLI_SCRIPT) {
             if ($CFG->block_suap_crontab) {
                 $this->execute_and_print("php ".$CFG->dirroot . '/blocks/suap/cron.php');
+                $suaplock->release();
                 \core\task\manager::clear_static_caches();
                 $this->execute_and_print("php ".$CFG->dirroot . '/admin/cli/purge_caches.php');
                 $this->execute_and_print("php ".$CFG->dirroot . '/admin/cli/build_theme_css.php');
