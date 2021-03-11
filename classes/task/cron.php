@@ -16,8 +16,10 @@ class cron extends \core\task\scheduled_task
         $datets=time() + 1 * MINSECS;
         $datets2=time() + 16 * MINSECS;
 
-        $date= new DateTime("@$datets");
-        $date2= new DateTime("@$datets2");
+        $date= new \DateTime;
+        $date->setTimestamp($datets);
+        $date2= new \DateTime;
+        $date2->setTimestamp($datets2);
 
 
         $task = new import();
