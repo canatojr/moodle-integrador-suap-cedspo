@@ -3,6 +3,10 @@ namespace block_suap\task;
 
 class clean_cache extends \core\task\adhoc_task
 {
+    public function get_name()
+    {
+        return "Limpa cache após importação dos usuários";
+    }
     public function execute_and_print($command)
     {
         $handle = popen($command, "r");

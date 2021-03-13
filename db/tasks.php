@@ -13,5 +13,14 @@ $tasks =
             'day' => '*',
             'dayofweek' => '*',
             'month' => '*',
+        ),
+        array(
+            'classname' => 'block_suap\task\notify',
+            'blocking' => 0,
+            'minute' => 0,       //run after every 15 mins
+            'hour' => 8,
+            'day' => '*',
+            'dayofweek' => '1',
+            'month' => '*',
         )
     );
