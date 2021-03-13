@@ -48,7 +48,7 @@ class cron extends \core\task\scheduled_task
                     'periodo' => $periodo,
                     'clean' => false
             ));
-            mtrace("Agendando importação do ".$ano."/".$periodo." para iniciar em ".$date->format('d/m/Y H:i:s'));
+            mtrace("Agendando importação de ".$ano."/".$periodo." para iniciar em ".$date->format('d/m/Y H:i:s'));
             \core\task\manager::reschedule_or_queue_adhoc_task($task);
 
             if($periodo > 1){
