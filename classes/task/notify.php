@@ -27,7 +27,7 @@ class notify extends \core\task\scheduled_task
             }
             $url_suap=$CFG->wwwroot."/blocks/suap/listar_cursos.php?ano=".$ano ."&periodo=".$periodo;
             $notification_header="Você tem cursos com a importação do SUAP desativada por não ter categorias associadas.\n\n Para associar acesse $url_suap e faça a associação\n";
-            foreach (\Curso::ler_rest($data->{'ano'}, $data->{'periodo'}) as $row) {
+            foreach (\Curso::ler_rest($ano, $periodo) as $row) {
                 if (!$row->ja_associado()) {
                     $notification+="\n" . $row->nome;
                 }
@@ -44,10 +44,11 @@ class notify extends \core\task\scheduled_task
                 $message->notification = 1; // Because this is a notification generated from Moodle, not a user-to-user message
                 //$content = array('*' => array('header' => ' test ', 'footer' => ' test ')); // Extra content for specific processor
                 //$message->set_additional_content('email', $content);
-
                 $messageid = message_send($message);
             }
 
+        }else{
+            mtrace("Cron desabilitado, acesse '".$CFG->wwwroot."/admin/settings.php?section=blocksettingsuap' e ative a atualização pelo crontab");
         }
     }
 }
