@@ -14,7 +14,7 @@ class notify extends \core\task\scheduled_task
 
         $notification="";
         
-        if ($CFG->block_suap_crontab) {
+        if ($CFG->block_suap_crontab && $CFG->block_suap_crontab_notify) {
             mtrace("Verificando cursos associados");
 
             require_once(__DIR__ . "/../../header.php");

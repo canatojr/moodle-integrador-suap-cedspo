@@ -99,6 +99,15 @@ if ($ADMIN->fulltree) {
     );
     $settings->add(
         new admin_setting_configselect(
+            'block_suap_crontab_notify',
+            get_string('crontabnotify', 'block_suap'),
+            get_string('configcrontabnotify', 'block_suap'),
+            false,
+            [false=>"Desativado",true=>"Ativado"]
+        )
+    );
+    $settings->add(
+        new admin_setting_configselect(
             'block_suap_auto_semestre_enabled',
             "Semestre Automático",
             "Utiliza o semestre atual para a importação dos diários",

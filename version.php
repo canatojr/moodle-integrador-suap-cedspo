@@ -2,7 +2,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2021031322.34;       // 20170728      = date YYYYMMDD
+$plugin->version = 2021031322.39;       // 20170728      = date YYYYMMDD
                                         //         RR    = release increments - 00.
                                         //           .XX = incremental changes.
 
