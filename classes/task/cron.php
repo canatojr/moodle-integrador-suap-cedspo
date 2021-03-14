@@ -48,7 +48,7 @@ class cron extends \core\task\scheduled_task
                     'periodo' => $periodo,
                     'clean' => false
             ));
-            mtrace("Agendando importação do ".$ano."/".$periodo." para iniciar em ".$date->format('d/m/Y H:i:s'));
+            mtrace("Agendando importação de ".$ano."/".$periodo." para iniciar em ".$date->format('d/m/Y H:i:s'));
             \core\task\manager::reschedule_or_queue_adhoc_task($task);
 
             if($periodo > 1){
@@ -64,7 +64,7 @@ class cron extends \core\task\scheduled_task
                     'clean' => true
             ));
 
-            mtrace("Agendando importação do ".$ano."/".$periodo." para iniciar em ".$date2->format('d/m/Y H:i:s'));
+            mtrace("Agendando importação de ".$ano."/".$periodo." para iniciar em ".$date2->format('d/m/Y H:i:s'));
             \core\task\manager::reschedule_or_queue_adhoc_task($task2);
             mtrace("Tarefas agendadas");
             mtrace("Você pode ver a execução das tarefas a partir do horário agendado acima em '".$CFG->wwwroot."/admin/tool/task/runningtasks.php'". " e após a conclusão da tarefa os logs estarão disponíveis em '".$CFG->wwwroot."/admin/tasklogs.php?filter=block_suap%5Ctask%5Cimport'");
