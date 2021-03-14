@@ -20,5 +20,6 @@ $string['confignivelturma'] = 'Indique um número inteiro.';
 $string['nivelperiodo'] = 'Nível da Categoria Moodle para o Período do Curso SUAP';
 $string['confignivelperiodo'] = 'Indique um número inteiro.';
 $string['crontab'] = 'Atualizar atraves do Crontab';
-$string['crontabnotify'] = 'Notificar sobre cursos não associados';
 $string['configcrontab'] = 'Selecione se você deseja que os cursos sejam importados automaticamente.';
+$string['crontabnotify'] = 'Notificar sobre cursos não associados';
+$string['configcrontabnotify'] = 'Notifica toda segunda caso tenha algum curso não associado no semestre corrente.';
