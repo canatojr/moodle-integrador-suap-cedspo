@@ -1,7 +1,7 @@
 <?php
 namespace block_suap\task;
 
-class import extends \core\task\scheduled_task
+class notify extends \core\task\scheduled_task
 {
     public function get_name()
     {
@@ -49,7 +49,5 @@ class import extends \core\task\scheduled_task
             }
 
         }
-        
-        
     }
 }
