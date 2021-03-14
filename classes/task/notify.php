@@ -29,6 +29,7 @@ class notify extends \core\task\scheduled_task
             $notification_header="Você tem cursos com a importação do SUAP desativada por não ter categorias associadas.\n\n Para associar acesse $url_suap e faça a associação\n";
             foreach (\Curso::ler_rest($ano, $periodo) as $row) {
                 if (!$row->ja_associado()) {
+                    echo "\nVocê deve associar o curso " . $row->nome . " em " . $url_suap;
                     $notification+="\n" . $row->nome;
                 }
             }
