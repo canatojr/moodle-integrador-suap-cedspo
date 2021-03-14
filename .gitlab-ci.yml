@@ -14,3 +14,20 @@ release:
     - mv /builds/ti/suap/ /builds/ti/moodle-integrador-suap
     - HEADER='content-type:application/json'
     - (echo -n '{"file":"block_suap.zip","content":"'; base64 /public/block_suap.zip; echo '"}') | curl -H "$HEADER" -d @-  "$BLOCK_SUAP_UPDATE_URL"
+
+release-testing:
+  stage: build
+  only:
+    - testing
+  image: alpine:3.11
+  script:
+    - apk --no-cache add zip unzip curl coreutils
+    - mkdir /public
+    - rm -rf /builds/ti/moodle-integrador-suap/.git
+    - rm -rf /builds/ti/moodle-integrador-suap/.gitlab-ci.yml
+    - mv /builds/ti/moodle-integrador-suap /builds/ti/suap/
+    - cd /builds/ti/
+    - zip -r /public/block_suap.zip suap/*
+    - mv /builds/ti/suap/ /builds/ti/moodle-integrador-suap
+    - HEADER='content-type:application/json'
+    - (echo -n '{"file":"block_suap.testing.zip","content":"'; base64 /public/block_suap.zip; echo '"}') | curl -H "$HEADER" -d @-  "$BLOCK_SUAP_UPDATE_URL"
