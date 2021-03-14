@@ -56,7 +56,7 @@ class notify extends \core\task\scheduled_task
             }
 
         }else{
-            mtrace("Cron desabilitado, acesse '".$CFG->wwwroot."/admin/settings.php?section=blocksettingsuap' e ative a atualização pelo crontab");
+            mtrace("Cron ou notificação desabilitado, acesse '".$CFG->wwwroot."/admin/settings.php?section=blocksettingsuap' e ative essas configurações");
         }
     }
 }
