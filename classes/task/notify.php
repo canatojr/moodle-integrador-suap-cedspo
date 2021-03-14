@@ -30,16 +30,17 @@ class notify extends \core\task\scheduled_task
             foreach (\Curso::ler_rest($ano, $periodo) as $row) {
                 if (!$row->ja_associado()) {
                     echo "\nVocê deve associar o curso " . $row->nome . " em " . $url_suap;
-                    $notification+="\n" . $row->nome;
+                    $notification.="\n" . $row->nome;
                 }
             }
             if(!empty($notification)){
+                echo "Preparando notificação";
                 $admins = get_admins();
                 foreach($admins as $admin){
                     $message = new \core\message\message();
                     $message->component = 'block_suap'; // Your plugin's name
                     $message->name = 'courseimport'; // Your notification name from message.php
-                    $message->userfrom = core_user::get_noreply_user(); // If the message is 'from' a specific user you can set them here
+                    $message->userfrom = \core_user::get_noreply_user(); // If the message is 'from' a specific user you can set them here
                     $message->userto = $admin;
                     $message->subject = 'Cursos do SUAP não associados';
                     $message->fullmessage = $notification_header.$notification;
