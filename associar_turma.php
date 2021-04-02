@@ -1,9 +1,10 @@
 <?php
 require_once dirname(__FILE__) . '/../../config.php';
 require_once $CFG->dirroot . "/blocks/suap/header.php";
-require_once $CFG->libdir . '/coursecatlib.php';
+//require_once $CFG->libdir . '/coursecatlib.php';
 
-$options = coursecat::make_categories_list('moodle/category:manage');
+//$options = coursecat::make_categories_list('moodle/category:manage');
+$options = core_course_category::make_categories_list('moodle/category:manage');
 
 $id_turma = isset($_GET['id_turma']) ? $_GET['id_turma'] : die('Parâmetros incompletos (id_turma).');
 $id_curso = isset($_GET['id_curso']) ? $_GET['id_curso'] : die('Parâmetros incompletos (id_turma).');
