@@ -347,7 +347,7 @@ class Curso extends Category
         } else {
             echo "<li>Importando do curso <b>{$this->name}</b> diários do período <b>$ano.$periodo</b>...</li><ol>";
         }
-        
+
         foreach (Turma::ler_rest($this->id_on_suap, $ano, $periodo, $this) as $turma) {
             if (!CLI_SCRIPT) {
                 echo "<li>";
@@ -537,7 +537,7 @@ class Diario extends AbstractEntity
         } else {
             echo "\nImportando o diário ({$this->getCodigo()})...";
         }
-        
+
         $this->ler_moodle();
         if ($this->ja_associado()) {
             echo "já existia. ";
@@ -577,6 +577,17 @@ class Diario extends AbstractEntity
             'fullname'=>"[{$this->getCodigo()}] {$this->descricao}",
             'shortname'=>"[{$this->getCodigo()}]",
             'idnumber'=>"{$this->getCodigo()}",
+
+
+        //linhas inseridas para que os cursos criados tenham o formato preferido pela CED
+            'format'=>"onetopic",
+            'numsections'=>"5",
+            'showreports'=>"1",
+
+            //tentativa de resolver o problema via página de configuração pasdrão de cursos do moodle
+                        //'format'=>$CFG->moodlecourse_format,
+                        //'numsections'=>$CFG->moodlecourse_numsections,
+                        //'showreports'=>$CFG->moodlecourse_showreports,
         );
 
         $record = create_course($dados);
@@ -618,7 +629,7 @@ class Usuario extends AbstractEntity
     {
         return strtolower($this->login ? $this->login : $this->matricula);
     }
-    
+
     public function getMatricula()
     {
         return strtolower($this->matricula ? $this->matricula : null);
@@ -698,15 +709,20 @@ class Usuario extends AbstractEntity
             } else {
                 echo "\nSincronizando " . count($list) .  " $oque do diário {$diario->fullname}...";
             }
-            
+
             foreach ($list as $instance) {
                 if (!CLI_SCRIPT) {
                     echo "<li>";
                 }
-                
+
                 $instance->importar();
+                // Se não encontrou o usuário aqui pode dar erro; inserido, então um if para garantir que o usuário foi encontrado e um else para emitir mensagem de professor não encontrado
+                if($instance->id_moodle){
                 $instance->arrolar($diario);
                 $instance->engrupar($diario);
+              } else {
+                echo "<h4>Usuário de professor não encontrado</h4>";
+              }
 
                 if (!CLI_SCRIPT) {
                     echo "</li>";
@@ -726,18 +742,26 @@ class Usuario extends AbstractEntity
         $default_user_preferences = ['auth_forcepasswordchange'=>'0', 'htmleditor'=>'0', 'email_bounce_count'=>'1', 'email_send_count'=>'1'];
         $usuario = $DB->get_record("user", array("username" => $this->getUsername()));
         $nome_parts = explode(' ', $this->nome);
-        $lastname = array_pop($nome_parts);
-        $firstname = implode(' ', $nome_parts);
+        // linhas modificadas para que o nome do usuário criado corresponda ao padrão do moodle (firstname + lastname = resto do nome)
+        $firstname = array_shift($nome_parts);
+        //$lastname = array_pop($nome_parts);
+        $lastname = implode(' ', $nome_parts);
+        //$firstname = implode(' ', $nome_parts);
         $issuerdata = $DB->get_record_sql('SELECT * FROM {oauth2_issuer} WHERE name LIKE ? ', ['%SUAP%']);
         if (!$usuario) {
+//linha de if inserida para garantir que o usuário aqui criado será um aluno, com o professor sendo criado por um método else mais à frente
+          if ($this->getTipo() == 'Aluno'){
             $this->id_moodle = user_create_user(
                 [
                 'lastname'=>$lastname,
                 'firstname'=>$firstname,
                 'username'=>$this->getUsername(),
                 'idnumber'=>$this->getUsername(),
-                'auth'=>'manual',
-                'password'=>$this->generate_password(),
+                //linha modificada para alocar usuário novo com autenticação oauth2
+                //'auth'=>'manual',
+                'auth'=>'oauth2',
+                //'password'=>$this->generate_password(),
+                'password'=>'not cached',
                 'email'=>$this->getEmail(),
                 'suspended'=>$this->getSuspended(),
                 'timezone'=>'99',
@@ -754,12 +778,22 @@ class Usuario extends AbstractEntity
             $usuario->id = $this->id_moodle;
             $oper = 'Criado';
         } else {
+          //buscar o professor na base de dados do moodle pelo seu idnumber e não pelo seu username
+          $usuario = $DB->get_record("user", array("idnumber" => $this->getUsername()));
+          $oper = 'Busca de usuário pelo idnumber';
+        }
+
+        $oper = 'Usuário não encontrado';
+      } else {
             $userinfo = [
                 'id'=>$usuario->id,
                 'idnumber'=>$this->getUsername(),
-                'auth'=>'manual',
+                //linha modificada para alocar usuários já existentes com a autenticação oauth2
+                //'auth'=>'manual',
+                'auth'=>'oauth2',
                 'suspended'=>$this->getSuspended(),
-                'email'=>$this->getEmail(),
+//linha excluida para não atualizar o email que o usuário já tem no moodle
+              //  'email'=>$this->getEmail(),
                 'lastname'=>$lastname,
                 'firstname'=>$firstname,
                 'mnethostid'=>1,
@@ -768,6 +802,8 @@ class Usuario extends AbstractEntity
             $oper = 'Atualizado';
         }
         //Cria linked_login
+        //inserida uma linha de if para garantir que o usuário foi encontrado
+        if($usuario){
         $record = new stdClass();
         $record->issuerid = $issuerdata->id;
         $record->username = $this->getUsername();
@@ -792,6 +828,7 @@ class Usuario extends AbstractEntity
                 echo "";
             }
         }
+      }
         //$DB->get_record_sql('UPDATE {auth_oauth2_linked_login} SET email = ? WHERE issuerid = ? AND userid = ? AND username = ? ', [$this->getEmail(),$issuerdata->id,$usuario->id,$this->getUsername()]);
         //$linked = \auth_oauth2\linked_login::get_record(['issuerid' => $issuerdata->id, 'userid' => $usuario->id,'username'=>$this->getUsername()]);
         //$linked->email = $this->getEmail();
@@ -803,7 +840,7 @@ class Usuario extends AbstractEntity
         } else {
              echo "\n$oper {$this->getUsername()} - {$this->nome} ({$this->getTipo()})";
         }
-        
+
         $this->id_moodle = $usuario->id;
     }
 
@@ -836,16 +873,16 @@ class Usuario extends AbstractEntity
             );
             echo " Foi arrolado. ";
         } else {
-            if ($enrolment->status != $this->getSituacaoNoDiario()) 
+            if ($enrolment->status != $this->getSituacaoNoDiario())
             {
                 try {
                     $enrolment->status = $this->getSituacaoNoDiario();
                     $DB->update_record('user_enrolments', $enrolment);
                     echo " Situação no diário atualizada. ";
                 } catch (Exception $e) {
-                    echo " Não foi possível atualizar situação no diário. ";
+                    echo " <h3>Não foi possível atualizar situação no diário.</h3> ";
                 }
-            } else 
+            } else
             {
                 echo " Já arrolado. ";
             }
@@ -897,7 +934,7 @@ class Usuario extends AbstractEntity
             }
         }
     }
-    
+
     private function generate_password($length = 20)
     {
         $chars =  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`-=~!@#$%^&*()_+,./<>?;:[]{}\|';
@@ -908,7 +945,7 @@ class Usuario extends AbstractEntity
         for ($i=0; $i < $length; $i++) {
             $str .= $chars[rand(0, $max)];
         }
-        
+
         return $str;
     }
 }
