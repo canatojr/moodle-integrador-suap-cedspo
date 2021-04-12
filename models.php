@@ -434,17 +434,19 @@ class Turma extends Category
     public function importar()
     {
         if (!CLI_SCRIPT) {
-            echo "Importando a turma <b>{$this->codigo}</b>...";
+            echo "Importando a turma<b>{$this->codigo}</b>...";
         } else {
-            echo "\nImportando a turma {$this->codigo}...";
+            echo "\nImportando a turma via cron {$this->codigo}...";
         }
         // Se não existe uma category para esta turma criá-la como filha do curso
+        // inserido && !CLI_SCRIPT para impedir a criação de turmas via cron.  
+
         $this->ler_moodle();
-        if (!$this->id_moodle) {
+        if (!$this->id_moodle && !CLI_SCRIPT) {
             $this->criar();
             echo " A turma foi criada.";
         } else {
-            echo " A turma já existe.";
+            echo " A turma já existe ou a criação de turma via cron está desabilitada.";
         }
         if (!CLI_SCRIPT) {
             echo " <a href='../../course/management.php?categoryid={$this->id_moodle}' class='btn btn-mini'>Acessar</a><ol>";
@@ -537,13 +539,21 @@ class Diario extends AbstractEntity
         } else {
             echo "\nImportando o diário ({$this->getCodigo()})...";
         }
-
+// Conjunto de linhas modificadas a seguir para evitar a criação de diários via cron.
         $this->ler_moodle();
         if ($this->ja_associado()) {
             echo "já existia. ";
+            Professor::sincronizar($this);
+            Aluno::sincronizar($this);
         } else {
-            $this->criar();
-            echo "foi criado com sucesso. ";
+            if (CLI_SCRIPT)
+            echo "criação desabilitada via cron. ";
+            else {
+                $this->criar();
+                echo "foi criado com sucesso. ";
+                Professor::sincronizar($this);
+                Aluno::sincronizar($this);
+            }
         }
         if (!CLI_SCRIPT) {
             echo "<a class='btn btn-mini' href='../../course/management.php?categoryid={$this->category}&courseid={$this->id_moodle}'>Configurações do curso</a>";
@@ -551,8 +561,8 @@ class Diario extends AbstractEntity
 
             echo "</li><ol>";
         }
-        Professor::sincronizar($this);
-        Aluno::sincronizar($this);
+      //  Professor::sincronizar($this);
+      //  Aluno::sincronizar($this);
         if (!CLI_SCRIPT) {
             echo "</ol>";
         }
