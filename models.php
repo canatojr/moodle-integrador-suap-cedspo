@@ -439,7 +439,7 @@ class Turma extends Category
             echo "\nImportando a turma via cron {$this->codigo}...";
         }
         // Se não existe uma category para esta turma criá-la como filha do curso
-        // inserido && !CLI_SCRIPT para impedir a criação de turmas via cron.  
+        // inserido && !CLI_SCRIPT para impedir a criação de turmas via cron.
 
         $this->ler_moodle();
         if (!$this->id_moodle && !CLI_SCRIPT) {
@@ -778,6 +778,7 @@ class Usuario extends AbstractEntity
                 'lang'=>'pt_br',
                 'confirmed'=>1,
                 'mnethostid'=>1,
+                'department'=>'ALUNO'
                 ],
                 false
             );
@@ -924,23 +925,29 @@ class Usuario extends AbstractEntity
         if ($polo) {
             $data = (object)['courseid' => $diario->id_moodle, 'name' => $polo->nome];
             $group = $this->get_record('groups', $data);
+// linhas abaixo modificadas para impedir a criação de grupos
+      //      if (!$group) {
+        //        groups_create_group($data);
+          //      $group = $this->get_record('groups', $data);
+            //}
             if (!$group) {
-                groups_create_group($data);
-                $group = $this->get_record('groups', $data);
+                echo "Criação de Grupo desabilitada pela CED-SPO.";
             }
-            if ($this->get_record('groups_members', ['groupid' => $group->id, 'userid' => $this->id_moodle, ])) {
+          //  if ($this->get_record('groups_members', ['groupid' => $group->id, 'userid' => $this->id_moodle, ])) {
+          //      if (!CLI_SCRIPT) {
+          //          echo "Já estava no grupo <b>{$polo->nome}</b>.";
+          //      } else {
+          //          echo "Já estava no grupo {$polo->nome}.";
+          //      }
+             else {
                 if (!CLI_SCRIPT) {
-                    echo "Já estava no grupo <b>{$polo->nome}</b>.";
+                  //  echo "Adicionado ao grupo <b>{$polo->nome}</b>.";
+                    echo "Adição a grupo desabilitada pela CED.";
                 } else {
-                    echo "Já estava no grupo {$polo->nome}.";
+                  //  echo "Adicionado ao grupo {$polo->nome}.";
+                    echo "Adição a grupo desabilitada pela CED.";
                 }
-            } else {
-                if (!CLI_SCRIPT) {
-                    echo "Adicionado ao grupo <b>{$polo->nome}</b>.";
-                } else {
-                    echo "Adicionado ao grupo {$polo->nome}.";
-                }
-                groups_add_member($group->id, $this->id_moodle);
+          //      groups_add_member($group->id, $this->id_moodle);
             }
         }
     }
