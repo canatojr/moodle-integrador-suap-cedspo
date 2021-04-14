@@ -439,7 +439,7 @@ class Turma extends Category
             echo "\nImportando a turma via cron {$this->codigo}...";
         }
         // Se não existe uma category para esta turma criá-la como filha do curso
-        // inserido && !CLI_SCRIPT para impedir a criação de turmas via cron.
+        // inserido && !CLI_SCRIPT pela CED para impedir a criação de turmas via cron.
 
         $this->ler_moodle();
         if (!$this->id_moodle && !CLI_SCRIPT) {
@@ -539,7 +539,7 @@ class Diario extends AbstractEntity
         } else {
             echo "\nImportando o diário ({$this->getCodigo()})...";
         }
-// Conjunto de linhas modificadas a seguir para evitar a criação de diários via cron.
+// Conjunto de linhas modificadas pela CED a seguir para evitar a criação de diários via cron.
         $this->ler_moodle();
         if ($this->ja_associado()) {
             echo "já existia. ";
@@ -594,7 +594,7 @@ class Diario extends AbstractEntity
             'numsections'=>"5",
             'showreports'=>"1",
 
-            //tentativa de resolver o problema via página de configuração pasdrão de cursos do moodle
+            //tentativa de resolver o problema via página de configuração padrão de cursos do moodle
                         //'format'=>$CFG->moodlecourse_format,
                         //'numsections'=>$CFG->moodlecourse_numsections,
                         //'showreports'=>$CFG->moodlecourse_showreports,
@@ -726,12 +726,12 @@ class Usuario extends AbstractEntity
                 }
 
                 $instance->importar();
-                // Se não encontrou o usuário aqui pode dar erro; inserido, então um if para garantir que o usuário foi encontrado e um else para emitir mensagem de professor não encontrado
+                // Se não encontrou o usuário aqui pode dar erro; inserido, então um if pela CED para garantir que o usuário foi encontrado e um else para emitir mensagem de professor não encontrado
                 if($instance->id_moodle){
                 $instance->arrolar($diario);
                 $instance->engrupar($diario);
               } else {
-                echo "<h4>Usuário de professor não encontrado</h4>";
+                echo "<h4>Usuário de professor não encontrado e não inscrito no curso</h4>";
               }
 
                 if (!CLI_SCRIPT) {
@@ -748,18 +748,20 @@ class Usuario extends AbstractEntity
 
     public function importar()
     {
-        global $DB, $default_user_preferences;
-        $default_user_preferences = ['auth_forcepasswordchange'=>'0', 'htmleditor'=>'0', 'email_bounce_count'=>'1', 'email_send_count'=>'1'];
+// linhas referentes a user_preferences desabilitadas pela CED
+    //    global $DB, $default_user_preferences;
+          global $DB;
+    //    $default_user_preferences = ['auth_forcepasswordchange'=>'0', 'htmleditor'=>'0', 'email_bounce_count'=>'1', 'email_send_count'=>'1'];
         $usuario = $DB->get_record("user", array("username" => $this->getUsername()));
         $nome_parts = explode(' ', $this->nome);
-        // linhas modificadas para que o nome do usuário criado corresponda ao padrão do moodle (firstname + lastname = resto do nome)
+        // linhas modificadas pela CED para que o nome do usuário criado corresponda ao padrão do moodle (firstname + lastname = resto do nome)
         $firstname = array_shift($nome_parts);
         //$lastname = array_pop($nome_parts);
         $lastname = implode(' ', $nome_parts);
         //$firstname = implode(' ', $nome_parts);
         $issuerdata = $DB->get_record_sql('SELECT * FROM {oauth2_issuer} WHERE name LIKE ? ', ['%SUAP%']);
         if (!$usuario) {
-//linha de if inserida para garantir que o usuário aqui criado será um aluno, com o professor sendo criado por um método else mais à frente
+//linha de if inserida pela CED para garantir que o usuário aqui criado será um aluno, com o professor sendo criado por um método else mais à frente
           if ($this->getTipo() == 'Aluno'){
             $this->id_moodle = user_create_user(
                 [
@@ -767,7 +769,7 @@ class Usuario extends AbstractEntity
                 'firstname'=>$firstname,
                 'username'=>$this->getUsername(),
                 'idnumber'=>$this->getUsername(),
-                //linha modificada para alocar usuário novo com autenticação oauth2
+                //linha modificada pela CED para alocar usuário novo com autenticação oauth2
                 //'auth'=>'manual',
                 'auth'=>'oauth2',
                 //'password'=>$this->generate_password(),
@@ -783,37 +785,55 @@ class Usuario extends AbstractEntity
                 false
             );
 
-            foreach ($default_user_preferences as $key=>$value) {
-                $this->criar_user_preferences($key, $value);
-            }
+      //      foreach ($default_user_preferences as $key=>$value) {
+      //          $this->criar_user_preferences($key, $value);
+      //      }
+      //linha inserida para definir $usuario como stdClass
+            $usuario  = new stdClass();
             $usuario->id = $this->id_moodle;
-            $oper = 'Criado';
-        } else {
-          //buscar o professor na base de dados do moodle pelo seu idnumber e não pelo seu username
-          $usuario = $DB->get_record("user", array("idnumber" => $this->getUsername()));
-          $oper = 'Busca de usuário pelo idnumber';
-        }
+      //      $oper = 'Usuário de aluno criado';
+      echo "Usuário de aluno criado.";
 
-        $oper = 'Usuário não encontrado';
+    //conjunto de linhas inserido pela CED para adicionar novo usuário aluno no cohort de alunos SP
+            $cohortmembers = $DB->get_record('cohort_members', array('userid'=>$this->id_moodle));
+            if (!$cohortmembers) {
+                $id = $DB->insert_record(
+                    'cohort_members',
+                    (object)['cohortid'=>'83',
+                                                  'userid'=>$this->id_moodle,
+                                                  'timeadded'=>time()]
+
+                );
+                $oper = 'Usuário de aluno incluso no seu cohort.';
+                            }
+        } else {
+          //linhas inseridas pela CED para buscar o professor na base de dados do moodle pelo seu idnumber e não pelo seu username
+          if ($usuario = $DB->get_record("user", array("idnumber" => $this->getUsername())))
+          {
+            $oper = 'Usuário de professor encontrado';
+          } else {
+          $oper = 'Usuário de professor não encontrado e não criado';
+      }
+      }
       } else {
             $userinfo = [
                 'id'=>$usuario->id,
                 'idnumber'=>$this->getUsername(),
-                //linha modificada para alocar usuários já existentes com a autenticação oauth2
+                //linha modificada pela CED para alocar usuários já existentes com a autenticação oauth2
                 //'auth'=>'manual',
                 'auth'=>'oauth2',
                 'suspended'=>$this->getSuspended(),
-//linha excluida para não atualizar o email que o usuário já tem no moodle
+//linha excluida pela CED para não atualizar o email que o usuário já tem no moodle
               //  'email'=>$this->getEmail(),
                 'lastname'=>$lastname,
                 'firstname'=>$firstname,
                 'mnethostid'=>1,
             ];
             user_update_user($userinfo, false);
-            $oper = 'Atualizado';
+            $oper = 'Usuário Atualizado';
         }
         //Cria linked_login
-        //inserida uma linha de if para garantir que o usuário foi encontrado
+        //inserida uma linha de if pela CED para garantir que o usuário foi encontrado
         if($usuario){
         $record = new stdClass();
         $record->issuerid = $issuerdata->id;
@@ -840,10 +860,6 @@ class Usuario extends AbstractEntity
             }
         }
       }
-        //$DB->get_record_sql('UPDATE {auth_oauth2_linked_login} SET email = ? WHERE issuerid = ? AND userid = ? AND username = ? ', [$this->getEmail(),$issuerdata->id,$usuario->id,$this->getUsername()]);
-        //$linked = \auth_oauth2\linked_login::get_record(['issuerid' => $issuerdata->id, 'userid' => $usuario->id,'username'=>$this->getUsername()]);
-        //$linked->email = $this->getEmail();
-        //$DB->update_record('auth_oauth2_linked_login', $linked);
 
 
         if (!CLI_SCRIPT) {
@@ -852,8 +868,10 @@ class Usuario extends AbstractEntity
              echo "\n$oper {$this->getUsername()} - {$this->nome} ({$this->getTipo()})";
         }
 
-        $this->id_moodle = $usuario->id;
+        if($usuario){
+          $this->id_moodle = $usuario->id;
     }
+  }
 
     public function criar_user_preferences($name, $value)
     {
@@ -882,7 +900,7 @@ class Usuario extends AbstractEntity
                                               'modifierid'=>$USER->id,
                                               'timeend'=>0,]
             );
-            echo " Foi arrolado. ";
+            echo " Foi inscrito no curso. ";
         } else {
             if ($enrolment->status != $this->getSituacaoNoDiario())
             {
@@ -895,28 +913,44 @@ class Usuario extends AbstractEntity
                 }
             } else
             {
-                echo " Já arrolado. ";
+                echo " Já inscrito. ";
             }
         }
-
+//algumas linhas modificadas peal CED para evitar a troca do papel de tutor (ou qq outro) atribuído localmente pelo de professor puxado do diário
         $assignment = $DB->get_record(
             'role_assignments',
             array('roleid'=>$this->getRoleId(), 'contextid'=>$diario->context->id, 'userid'=>$this->id_moodle, 'itemid'=>0)
         );
         $diario->ja_associado();
         if (!$assignment) {
+           if ($this->getTipo() == 'Aluno') {
             $id2 = $DB->insert_record(
                 'role_assignments',
-                (object)['roleid'=>$this->getRoleId(),
+                (object)['roleid'=>'5',
                                                'contextid'=>$diario->context->id,
                                                'userid'=>$this->id_moodle,
                 'itemid'=>0,]
             );
-            echo " Foi atribuído. ";
+            echo " Papel de estudante atribuído. ";
         } else {
-            echo " Já atribuído. ";
-        }
+          if (!$enrolment) {
+            $id2 = $DB->insert_record(
+              'role_assignments',
+              (object)['roleid'=>'3',
+                                             'contextid'=>$diario->context->id,
+                                             'userid'=>$this->id_moodle,
+              'itemid'=>0,]
+          );
+          echo " Papel de professor atribuído. ";
+      } else {
+        echo " Papel de tutor já estava atribuído. ";
+      }
     }
+  } else {
+
+            echo " Papel já estava atribuído. ";
+        }
+}
 
     public function engrupar($diario)
     {
@@ -925,7 +959,7 @@ class Usuario extends AbstractEntity
         if ($polo) {
             $data = (object)['courseid' => $diario->id_moodle, 'name' => $polo->nome];
             $group = $this->get_record('groups', $data);
-// linhas abaixo modificadas para impedir a criação de grupos
+// linhas abaixo modificadas pela CED para impedir a criação de grupos
       //      if (!$group) {
         //        groups_create_group($data);
           //      $group = $this->get_record('groups', $data);
