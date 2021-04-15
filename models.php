@@ -761,12 +761,14 @@ class Usuario extends AbstractEntity
         //$firstname = implode(' ', $nome_parts);
         $issuerdata = $DB->get_record_sql('SELECT * FROM {oauth2_issuer} WHERE name LIKE ? ', ['%SUAP%']);
         if (!$usuario) {
-//linha de if inserida pela CED para garantir que o usuário aqui criado será um aluno, com o professor sendo criado por um método else mais à frente
+//linha de if inserida pela CED para garantir que o usuário aqui criado será um aluno, com o professor sendo criado por um método else mais à frente;
+//também inseridas linhas para que a autenticação seja feita por oauth2, que o alternatenme seja o nome inteiro e que o aluno seja classificado como ALUNO no campo department.
           if ($this->getTipo() == 'Aluno'){
             $this->id_moodle = user_create_user(
                 [
                 'lastname'=>$lastname,
                 'firstname'=>$firstname,
+                'alternatename'=>$this->nome,
                 'username'=>$this->getUsername(),
                 'idnumber'=>$this->getUsername(),
                 //linha modificada pela CED para alocar usuário novo com autenticação oauth2
@@ -819,7 +821,7 @@ class Usuario extends AbstractEntity
             $userinfo = [
                 'id'=>$usuario->id,
                 'idnumber'=>$this->getUsername(),
-                //linha modificada pela CED para alocar usuários já existentes com a autenticação oauth2
+                //linha modificada pela CED para alocar usuários já existentes com a autenticação oauth2 e alternatename como nome inteiro.
                 //'auth'=>'manual',
                 'auth'=>'oauth2',
                 'suspended'=>$this->getSuspended(),
@@ -827,6 +829,7 @@ class Usuario extends AbstractEntity
               //  'email'=>$this->getEmail(),
                 'lastname'=>$lastname,
                 'firstname'=>$firstname,
+                'alternatename'=>$this->nome,
                 'mnethostid'=>1,
             ];
             user_update_user($userinfo, false);
