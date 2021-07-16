@@ -412,7 +412,8 @@ class Turma extends Category
         $this->curso = $curso;
     }
 
-    public function getLabel()
+    public function getLabel() //OBS: se quiser customizar o nome da turma é aqui o lugar.
+
     {
         return $this->codigo;
     }
@@ -441,7 +442,7 @@ class Turma extends Category
         // Se não existe uma category para esta turma criá-la como filha do curso
         // inserido && !CLI_SCRIPT pela CED para impedir a criação de turmas via cron.
 
-        $this->ler_moodle();
+        $this->ler_moodle(); //OBS: id_moodle é o id da categoria da base de dados
         if (!$this->id_moodle && !CLI_SCRIPT) {
             $this->criar();
             echo " A turma foi criada.";
@@ -511,7 +512,8 @@ class Diario extends AbstractEntity
         return $this->sigla;
     }
 
-    public function getCodigo()
+    public function getCodigo() //OBS: se quiser customizar o nome do curso criado no moodle é aqui o lugar.
+
     {
         return $this->turma ? "{$this->turma->codigo}.{$this->sigla} {$this->id_suap}" : null;
     }
@@ -576,15 +578,21 @@ class Diario extends AbstractEntity
         $turma_id = $this->turma->id_moodle;
         $periodo_params = ["parent" => $turma_id, 'name' => $periodo_nome];
 
-        $periodo = $this->get_record('course_categories', $periodo_params);
-        if (!$periodo) {
-            $periodo = core_course_category::create($periodo_params);
-        }
+        // linhas eliminadas para que os cursos sejam criados diretamente dentro das categorias das turmas, sem criar subcategorias de período
+            //    $periodo = $this->get_record('course_categories', $periodo_params);
+            //    if (!$periodo) {
+            //        $periodo = core_course_category::create($periodo_params);
+          //      }
+    //    $periodo = $this->get_record('course_categories', $periodo_params);
+    //    if (!$periodo) {
+    //        $periodo = core_course_category::create($periodo_params);
+  //      }
 
         // Criar o diário
         $dados = (object)array(
-            'category'=>$periodo->id,
-            'fullname'=>"[{$this->getCodigo()}] {$this->descricao}",
+        //    'category'=>$periodo->id,
+            'category'=>$turma_id,
+            'fullname'=>"[{$this->getCodigo()}] {$this->descricao}", //OBS: getCodigo é o indicativo do nome extenso do diário no SUAP
             'shortname'=>"[{$this->getCodigo()}]",
             'idnumber'=>"{$this->getCodigo()}",
 
