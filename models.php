@@ -601,6 +601,7 @@ class Diario extends AbstractEntity
             'format'=>"onetopic",
             'numsections'=>"5",
             'showreports'=>"1",
+            'visible'=>"1",
 
             //tentativa de resolver o problema via página de configuração padrão de cursos do moodle
                         //'format'=>$CFG->moodlecourse_format,
@@ -839,9 +840,22 @@ class Usuario extends AbstractEntity
                 'firstname'=>$firstname,
                 'alternatename'=>$this->nome,
                 'mnethostid'=>1,
+				'department'=>'SERVIDOR'
             ];
             user_update_user($userinfo, false);
             $oper = 'Usuário Atualizado';
+			 //conjunto de linhas inserido pela CED para adicionar o usuário professor no cohort de professores do campus SP
+            $cohortmembers = $DB->get_record('cohort_members', array('userid'=>$this->id_moodle));
+            if (!$cohortmembers) {
+                $id = $DB->insert_record(
+                    'cohort_members',
+                    (object)['cohortid'=>'15',
+                                                  'userid'=>$this->id_moodle,
+                                                  'timeadded'=>time()]
+
+                );
+                $oper = 'Usuário de professor incluso no cohort de professores do campus SP.';
+                            }
         }
         //Cria linked_login
         //inserida uma linha de if pela CED para garantir que o usuário foi encontrado
