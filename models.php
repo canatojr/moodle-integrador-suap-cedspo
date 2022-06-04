@@ -841,6 +841,8 @@ class Usuario extends AbstractEntity
                 'alternatename'=>$this->nome,
                 'mnethostid'=>1,
             ];
+          //  if ($this->getTipo() == 'Aluno'){$userinfo = ['department'=>'ALUNO'];}
+        //    else {if ($this->getTipo() == 'Principal'){$userinfo = ['department'=>'SERVIDOR'];}}
             user_update_user($userinfo, false);
             $oper = 'Usuário Atualizado';
         }
